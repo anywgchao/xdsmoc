@@ -1,0 +1,115 @@
+[
+    {
+        "User": "SYSTEM"
+    },
+    {
+        "Passwords": [
+            [
+                {
+                    "Category": "Vnc"
+                },
+                [
+                    {
+                        "Password": "As123456",
+                        "Server": "UltraVNC"
+                    },
+                    {
+                        "Password": "As123456",
+                        "Server": "TightVNC ControlPassword"
+                    },
+                    {
+                        "Password": "As123456",
+                        "Server": "TightVNC"
+                    }
+                ]
+            ],
+            [
+                {
+                    "Category": "Puttycm"
+                },
+                [
+                    {
+                        "Description": "None",
+                        "Host": "202.85.213.8",
+                        "Login": "root",
+                        "Name": "202.85.213.8:23",
+                        "Password": "root",
+                        "Port": "23",
+                        "Protocol": "Telnet"
+                    },
+                    {
+                        "Description": "None",
+                        "Host": "202.85.213.8",
+                        "Login": "root",
+                        "Name": "202.85.213.8:22202",
+                        "Password": "123123123",
+                        "Port": "22202",
+                        "Protocol": "SSH"
+                    }
+                ]
+            ],
+            [
+                {
+                    "Category": "Filezilla"
+                },
+                [
+                    {
+                        "ConnName": "fosdb",
+                        "Host": "182.92.99.232",
+                        "Login": "www",
+                        "Password": "jUdndu22sss7)3n7J&!c",
+                        "Port": "5233"
+                    },
+                    {
+                        "ConnName": "itavcn",
+                        "Host": "123.57.213.86",
+                        "Login": "guoxing",
+                        "Password": "128ie83Usssue84#0x",
+                        "Port": "5234"
+                    },
+                    {
+                        "ConnName": "cpanet-org-81",
+                        "Host": "202.85.213.81",
+                        "Login": "www",
+                        "Password": "sklsdf2&sljsssek71UYWh",
+                        "Port": "5233"
+                    },
+                    {
+                        "ConnName": "cpanet80",
+                        "Host": "202.85.213.80",
+                        "Login": "nobody",
+                        "Password": "sdfjiurmv0sss283z8xUx",
+                        "Port": "5233"
+                    },
+                    {
+                        "ConnName": "wode",
+                        "Host": "202.85.213.15",
+                        "Login": "watcherdb",
+                        "Password": "watchersssdbUKK#1",
+                        "Port": "5233"
+                    }
+                ]
+            ],
+            [
+                {
+                    "Category": "Winscp"
+                },
+                [
+                    {
+                        "Login": "root",
+                        "Password": "root",
+                        "Port": "22202",
+                        "URL": "202.85.213.8"
+                    },
+                    {
+                        "Login": "root",
+                        "Password": "678yuissshjk",
+                        "Port": "22204",
+                        "URL": "202.85.213.8"
+                    }
+                ]
+            ]
+        ],
+        "User": "shutup"
+    }
+]
