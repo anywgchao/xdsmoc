@@ -8,6 +8,7 @@
 ##############################################################################
 
 # Disclaimer: Do Not Use this program for illegal purposes ;)
+password='123123'
 
 import sys
 import os
