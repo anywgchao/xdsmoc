@@ -1,0 +1,204 @@
+
+##############################################################################
+#                                                                            #
+#                                   By XD                                    #
+#                                                                            #
+##############################################################################
+
+[+] System masterkey decrypted for 1e582198-061f-43f1-abdf-d4e9b606b035
+[+] System masterkey decrypted for 7fa01bc6-28a4-419c-ad08-59928cefdf97
+[+] System masterkey decrypted for 7ea70cfb-7434-4de3-8943-0f0f92c4f61e
+[+] System masterkey decrypted for 56d58a36-24af-4d4d-b1de-9a7509b8b06b
+[+] System masterkey decrypted for a201ab0c-fae6-4669-85d6-48d43a10adf5
+[+] System masterkey decrypted for f22e410f-f947-4e08-8f2a-8f65df603f8d
+
+########## User: SYSTEM ##########
+
+
+########## User: shutup ##########
+
+ ------------------- Firefox passwords -----------------
+
+ ------------------- Comodo icedragon passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Icecat passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Blackhawk passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Cyberfox passwords -----------------
+
+[!] No passwords found
+
+ ------------------- K-meleon passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Vivaldi passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Brave passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Torch passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Comodo dragon passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Google chrome passwords -----------------
+
+[+] Password found !!!
+URL: https://passport.aliyun.com/mini_login.htm
+Login: anywgchao@gmail.com
+Password: anywgchao123#@$
+Create_time: 2018-09-30 08:54:33
+
+ ------------------- Coccoc passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Chromium passwords -----------------
+
+[!] No passwords found
+
+ ------------------- 7star passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Amigo passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Elements browser passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Uc browser passwords -----------------
+
+[+] Password found !!!
+URL: https://pan.baidu.com/
+Login: anywgchao
+Password: wang1985325
+Create_time: 2018-10-29 07:53:13
+
+ ------------------- Ie passwords -----------------
+
+[-] 3 hashes have not been decrypted, the associate website used to decrypt the passwords has not been found
+[!] No passwords found
+
+ ------------------- Sputnik passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Chedot passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Ucbrowser passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Chrome canary passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Yandexbrowser passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Orbitum passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Uran passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Opera passwords -----------------
+
+[!] No passwords found
+
+ ------------------- 360chrome passwords -----------------
+
+[+] Password found !!!
+URL: https://pan.baidu.com/
+Login: anywgchao
+Password: wang1985325
+Create_time: 1601-01-01 00:25:38
+
+ ------------------- Kometa passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Centbrowser passwords -----------------
+
+[!] No passwords found
+
+ ------------------- Epic privacy browser passwords -----------------
+
+[!] No passwords found
+
+[
+    {
+        "User": "SYSTEM"
+    },
+    {
+        "Passwords": [
+            [
+                {
+                    "Category": "Google chrome"
+                },
+                [
+                    [
+                        "URL: https://passport.aliyun.com/mini_login.htm",
+                        "Login: anywgchao@gmail.com",
+                        "Password: anywgchao123#@$",
+                        "Create_time: 2018-09-30 08:54:33"
+                    ]
+                ]
+            ],
+            [
+                {
+                    "Category": "Uc browser"
+                },
+                [
+                    [
+                        "URL: https://pan.baidu.com/",
+                        "Login: anywgchao",
+                        "Password: wang1985325",
+                        "Create_time: 2018-10-29 07:53:13"
+                    ]
+                ]
+            ],
+            [
+                {
+                    "Category": "360chrome"
+                },
+                [
+                    [
+                        "URL: https://pan.baidu.com/",
+                        "Login: anywgchao",
+                        "Password: wang1985325",
+                        "Create_time: 1601-01-01 00:25:38"
+                    ]
+                ]
+            ]
+        ],
+        "User": "shutup"
+    }
+]
+[+] File written: .\credentials_20112019_164202.json
+
+[+] 3 passwords have been found.
+
+elapsed time = 7.31299996376
