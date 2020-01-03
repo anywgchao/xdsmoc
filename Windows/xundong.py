@@ -1,23 +1,25 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python
 
-##############################################################################
-#                                                                            #
-#                                   By XD                                    #
-#                                                                            #
-##############################################################################
+'''
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+>                           Copyright © xdsmoc                             <
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+'''
 
+import argparse
+import logging
 import os
 import sys
 import time
-import logging
-import argparse
-from xdsmoc.config.write_output import write_in_file, StandardOutput
-from xdsmoc.config.manage_modules import get_categories
-from xdsmoc.config.constant import constant
-from xdsmoc.config.run import run_xdsmoc, create_module_dic
 
-constant.st = StandardOutput()  # Object used to manage the output / write functions (cf write_output file)
+from xdsmoc.config.constant import constant
+from xdsmoc.config.manage_modules import get_categories
+from xdsmoc.config.run import create_module_dic, run_xdsmoc
+from xdsmoc.config.write_output import StandardOutput, write_in_file
+
+# Object used to manage the output / write functions (cf write_output file)
+constant.st = StandardOutput()
 modules = create_module_dic()
 
 
@@ -98,7 +100,8 @@ def clean_args(arg):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=constant.st.banner, formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=constant.st.banner, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-version', action='version', version='Version ' + str(constant.CURRENT_VERSION),
                         help='XD version')
 
@@ -110,7 +113,8 @@ if __name__ == '__main__':
                                                             max_help_position=constant.max_help)
     )
     PPoptional._optionals.title = 'optional arguments'
-    PPoptional.add_argument('-v', dest='verbose', action='count', default=0, help='increase verbosity level')
+    PPoptional.add_argument('-v', dest='verbose', action='count',
+                            default=0, help='increase verbosity level')
     PPoptional.add_argument('-quiet', dest='quiet', action='store_true', default=False,
                             help='quiet mode: nothing is printed to the output')
     # Output
@@ -194,7 +198,8 @@ if __name__ == '__main__':
     # Main commands
     subparsers = parser.add_subparsers(help='Choose a main command')
     for d in dic:
-        subparsers.add_parser(d, parents=dic[d]['parents'], help=dic[d]['help']).set_defaults(auditType=d)
+        subparsers.add_parser(
+            d, parents=dic[d]['parents'], help=dic[d]['help']).set_defaults(auditType=d)
 
     # ------------------------------------------- Parse arguments -------------------------------------------
     if len(sys.argv) == 1:

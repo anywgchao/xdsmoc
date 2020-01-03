@@ -25,7 +25,7 @@ class StandardOutput(object):
     def __init__(self):
         self.banner = '''
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
->                           Copyright © XunDong                             <
+>                           Copyright © xdsmoc                             <
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 '''
         self.FILTER = b''.join([((len(repr(chr_or_byte(x))) == 3 and python_version == 2) or
