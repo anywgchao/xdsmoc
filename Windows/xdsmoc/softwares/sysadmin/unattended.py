@@ -23,7 +23,7 @@ class Unattended(ModuleInfo):
             return message
 
     def run(self):
-        # windir = os.path.join(constant.profile['HOMEDRIVE'], string_to_unicode(os.sep), u'Windows')
+        windir = os.path.join(constant.profile['HOMEDRIVE'], string_to_unicode(os.sep), u'Windows')
         files = [
             'Panther\\Unattend.xml',
             'Panther\\Unattended.xml',
@@ -36,17 +36,15 @@ class Unattended(ModuleInfo):
         pwd_found = []
         xmlns = '{urn:schemas-microsoft-com:unattend}'
         for file in files:
-            path = os.path.join(os.environ['WINDIR'], string_to_unicode(file))
+            path = os.path.join(windir, string_to_unicode(file))
             if os.path.exists(path):
                 self.debug(u'Unattended file found: %s' % path)
                 tree = ElementTree(file=path)
                 root = tree.getroot()
 
-                # {urn: schemas - microsoft - com: unattend}unattend
                 for setting in root.findall('%ssettings' % xmlns):
                     component = setting.find('%scomponent' % xmlns)
-                    auto_logon = component.find('%sAutoLogon' % xmlns)
-
+                    auto_logon = component.find('%sauto_logon' % xmlns)
                     if auto_logon:
                         username = auto_logon.find('%sUsername' % xmlns)
                         password = auto_logon.find('%sPassword' % xmlns)

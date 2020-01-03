@@ -90,7 +90,7 @@ class RDPManager(ModuleInfo):
                         if os.path.exists(r.text):
                             self.debug(u'New setting file found: %s' % r.text)
                             pwd_found += self.parse_xml(r.text)
-                except Exception as e:
+                except Exception:
                     pass
 
                 return pwd_found

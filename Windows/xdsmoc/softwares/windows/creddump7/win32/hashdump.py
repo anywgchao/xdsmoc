@@ -27,7 +27,8 @@ from ..addrspace import HiveFileAddressSpace
 from .rawreg import *
 from xdsmoc.config.crypto.rc4 import RC4
 from xdsmoc.config.crypto.pyDes import des, ECB
-from xdsmoc.config.winstructure import char_to_int
+from xdsmoc.config.crypto.pyaes.aes import AESModeOfOperationCBC
+from xdsmoc.config.winstructure import char_to_int, chr_or_byte, int_or_bytes
 
 
 odd_parity = [
@@ -54,13 +55,14 @@ p = [0x8, 0x5, 0x4, 0x2, 0xb, 0x9, 0xd, 0x3,
      0x0, 0x6, 0x1, 0xc, 0xe, 0xa, 0xf, 0x7]
 
 # Constants for SAM decrypt algorithm
-aqwerty = "!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%\0"
-anum = "0123456789012345678901234567890123456789\0"
-antpassword = "NTPASSWORD\0"
-almpassword = "LMPASSWORD\0"
+aqwerty = b"!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%\0"
+anum = b"0123456789012345678901234567890123456789\0"
+antpassword = b"NTPASSWORD\0"
+almpassword = b"LMPASSWORD\0"
 
 empty_lm = codecs.decode('aad3b435b51404eeaad3b435b51404ee', 'hex')
 empty_nt = codecs.decode('31d6cfe0d16ae931b73c59d7e0c089c0', 'hex')
+AES_BLOCK_SIZE = 16
 
 
 def str_to_key(s):
@@ -76,21 +78,21 @@ def str_to_key(s):
     for i in range(8):
         key[i] = (key[i] << 1)
         key[i] = odd_parity[key[i]]
-    return "".join(chr(k) for k in key)
+    return b"".join(chr_or_byte(k) for k in key)
 
 
 def sid_to_key(sid):
-    s1 = ""
-    s1 += chr(sid & 0xFF)
-    s1 += chr((sid >> 8) & 0xFF)
-    s1 += chr((sid >> 16) & 0xFF)
-    s1 += chr((sid >> 24) & 0xFF)
-    s1 += s1[0]
-    s1 += s1[1]
-    s1 += s1[2]
-    s2 = s1[3] + s1[0] + s1[1] + s1[2]
-    s2 += s2[0] + s2[1] + s2[2]
-
+    s1 = b""
+    s1 += chr_or_byte(sid & 0xFF)
+    s1 += chr_or_byte((sid >> 8) & 0xFF)
+    s1 += chr_or_byte((sid >> 16) & 0xFF)
+    s1 += chr_or_byte((sid >> 24) & 0xFF)
+    s1 += int_or_bytes(s1[0])
+    s1 += int_or_bytes(s1[1])
+    s1 += int_or_bytes(s1[2])
+    s2 = int_or_bytes(s1[3]) + int_or_bytes(s1[0]) + int_or_bytes(s1[1]) + int_or_bytes(s1[2])
+	
+    s2 += int_or_bytes(s2[0]) + int_or_bytes(s2[1]) + int_or_bytes(s2[2])
     return str_to_key(s1), str_to_key(s2)
 
 
@@ -99,19 +101,19 @@ def find_control_set(sysaddr):
     if not root:
         return 1
 
-    csselect = open_key(root, ["Select"])
+    csselect = open_key(root, [b"Select"])
     if not csselect:
         return 1
 
     for v in values(csselect):
-        if v.Name == "Current":
+        if v.Name == b"Current":
             return v.Data.value
 
 
 def get_bootkey(sysaddr):
     cs = find_control_set(sysaddr)
-    lsa_base = ["ControlSet%03d" % cs, "Control", "Lsa"]
-    lsa_keys = ["JD", "Skew1", "GBG", "Data"]
+    lsa_base = [b"ControlSet%03d" % cs, b"Control", b"Lsa"]
+    lsa_keys = [b"JD", b"Skew1", b"GBG", b"Data"]
 
     root = get_root(sysaddr)
     if not root:
@@ -121,22 +123,25 @@ def get_bootkey(sysaddr):
     if not lsa:
         return None
 
-    bootkey = ""
+    bootkey = b""
 
     for lk in lsa_keys:
         key = open_key(lsa, [lk])
         class_data = sysaddr.read(key.Class.value, key.ClassLength.value)
-        bootkey += class_data.decode('utf-16-le').decode('hex')
+        bootkey += codecs.decode(class_data.decode('utf-16-le'), 'hex')
 
-    bootkey_scrambled = ""
+    bootkey_scrambled = b""
     for i in range(len(bootkey)):
-        bootkey_scrambled += bootkey[p[i]]
+        try:
+            bootkey_scrambled += bootkey[p[i]]
+        except TypeError:
+            bootkey_scrambled += bytes([bootkey[p[i]]])
 
     return bootkey_scrambled
 
 
 def get_hbootkey(samaddr, bootkey):
-    sam_account_path = ["SAM", "Domains", "Account"]
+    sam_account_path = [b"SAM", b"Domains", b"Account"]
 
     root = get_root(samaddr)
     if not root:
@@ -148,21 +153,31 @@ def get_hbootkey(samaddr, bootkey):
 
     F = None
     for v in values(sam_account_key):
-        if v.Name == 'F':
+        if v.Name == b'F':
             F = samaddr.read(v.Data.value, v.DataLength.value)
     if not F:
         return None
 
-    md5 = hashlib.md5(F[0x70:0x80] + aqwerty + bootkey + anum)
-    rc4_key = md5.digest()
-    rc4 = RC4(rc4_key)
+    revision = ord(F[0x00])
+    if revision == 2:
+        md5 = hashlib.md5(F[0x70:0x80] + aqwerty + bootkey + anum)
+        rc4_key = md5.digest()
+        rc4 = RC4(rc4_key)
+        hbootkey = rc4.encrypt(F[0x80:0xA0])
 
-    hbootkey = rc4.encrypt(F[0x80:0xA0])
-    return hbootkey
+        return hbootkey
+
+    elif revision == 3:
+        iv = F[0x78:0x88]
+        encryptedHBootKey = F[0x88:0xA8]
+        cipher = AESModeOfOperationCBC(bootkey, iv=iv)
+        hbootkey = b"".join([cipher.decrypt(encryptedHBootKey[i:i + AES_BLOCK_SIZE]) for i in range(0, len(encryptedHBootKey), AES_BLOCK_SIZE)])
+
+        return hbootkey[:16]
 
 
 def get_user_keys(samaddr):
-    user_key_path = ["SAM", "Domains", "Account", "Users"]
+    user_key_path = [b"SAM", b"Domains", b"Account", b"Users"]
 
     root = get_root(samaddr)
     if not root:
@@ -172,10 +187,12 @@ def get_user_keys(samaddr):
     if not user_key:
         return []
 
-    return [k for k in subkeys(user_key) if k.Name != "Names"]
+    return [k for k in subkeys(user_key) if k.Name != b"Names"]
 
 
 def decrypt_single_hash(rid, hbootkey, enc_hash, lmntstr):
+    if enc_hash == "":
+        return ""
     (des_k1, des_k2) = sid_to_key(rid)
     d1 = des(des_k1, ECB)
     d2 = des(des_k2, ECB)
@@ -189,21 +206,17 @@ def decrypt_single_hash(rid, hbootkey, enc_hash, lmntstr):
 
     return hash_
 
+def decrypt_single_salted_hash(rid, hbootkey, enc_hash, lmntstr, salt):
+    if enc_hash == "":
+        return ""
+    (des_k1, des_k2) = sid_to_key(rid)
+    d1 = des(des_k1, ECB)
+    d2 = des(des_k2, ECB)
+    cipher = AESModeOfOperationCBC(hbootkey, salt)
+    obfkey = b"".join([cipher.decrypt(enc_hash[i:i + AES_BLOCK_SIZE]) for i in range(0, len(enc_hash), AES_BLOCK_SIZE)])
 
-def decrypt_hashes(rid, enc_lm_hash, enc_nt_hash, hbootkey):
-    # LM Hash
-    if enc_lm_hash:
-        lmhash = decrypt_single_hash(rid, hbootkey, enc_lm_hash, almpassword)
-    else:
-        lmhash = ""
-
-    # NT Hash
-    if enc_nt_hash:
-        nthash = decrypt_single_hash(rid, hbootkey, enc_nt_hash, antpassword)
-    else:
-        nthash = ""
-
-    return lmhash, nthash
+    hash_ = d1.decrypt(obfkey[:8]) + d2.decrypt(obfkey[8:16])
+    return hash_
 
 
 def get_user_hashes(user_key, hbootkey):
@@ -214,24 +227,45 @@ def get_user_hashes(user_key, hbootkey):
         if v.Name == 'V':
             V = samaddr.read(v.Data.value, v.DataLength.value)
     if not V: return None
+    hash_offset = unpack("<L", V[0xa8:0xa8 + 4])[0] + 0xCC
 
-    hash_offset = unpack("<L", V[0x9c:0x9c + 4])[0] + 0xCC
+    lm_offset_bytes = V[0x9c:0x9c + 4]
+    nt_offset_bytes = V[0x9c + 12:0x9c + 16]
+    lm_offset = unpack("<L", lm_offset_bytes)[0] + 204
+    nt_offset = unpack("<L", nt_offset_bytes)[0] + 204
 
-    lm_exists = True if unpack("<L", V[0x9c + 4:0x9c + 8])[0] == 20 else False
-    nt_exists = True if unpack("<L", V[0x9c + 16:0x9c + 20])[0] == 20 else False
+    lm_revision = int(codecs.encode(V[lm_offset + 2:lm_offset + 3], 'hex').decode(), 16)
+    if lm_revision == 1:
+        lm_exists = True if unpack("<L", V[0x9c + 4:0x9c + 8])[0] == 20 else False
+        enc_lm_hash = V[hash_offset + 4:hash_offset + 20] if lm_exists else ""
+        lmhash = decrypt_single_hash(rid, hbootkey, enc_lm_hash, almpassword)
 
-    enc_lm_hash = V[hash_offset + 4:hash_offset + 20] if lm_exists else ""
-    enc_nt_hash = V[hash_offset + (24 if lm_exists else 8):hash_offset + (
-        24 if lm_exists else 8) + 16] if nt_exists else ""
+    elif lm_revision == 2:
+        lm_exists = True if unpack("<L", V[0x9c + 4:0x9c + 8])[0] == 56 else False
+        lm_salt = V[hash_offset + 4:hash_offset + 20] if lm_exists else ""
+        enc_lm_hash = V[hash_offset + 20:hash_offset + 52] if lm_exists else ""
+        lmhash = decrypt_single_salted_hash(rid, hbootkey, enc_lm_hash, almpassword, lm_salt)
 
-    return decrypt_hashes(rid, enc_lm_hash, enc_nt_hash, hbootkey)
+    nt_revision = int(codecs.encode(V[nt_offset + 2:nt_offset + 3], 'hex').decode(), 16)
+    if nt_revision == 1:
+        nt_exists = True if unpack("<L", V[0x9c + 16:0x9c + 20])[0] == 20 else False
+        enc_nt_hash = V[nt_offset + 4:nt_offset + 20] if nt_exists else ""
+        nthash = decrypt_single_hash(rid, hbootkey, enc_nt_hash, antpassword)
+
+    elif nt_revision == 2:
+        nt_exists = True if unpack("<L", V[0x9c + 16:0x9c + 20])[0] == 56 else False
+        nt_salt = V[nt_offset + 8:nt_offset + 24] if nt_exists else ""
+        enc_nt_hash = V[nt_offset + 24:nt_offset + 56] if nt_exists else ""
+        nthash = decrypt_single_salted_hash(rid, hbootkey, enc_nt_hash, antpassword, nt_salt)
+
+    return lmhash, nthash
 
 
 def get_user_name(user_key):
     samaddr = user_key.space
     V = None
     for v in values(user_key):
-        if v.Name == 'V':
+        if v.Name == b'V':
             V = samaddr.read(v.Data.value, v.DataLength.value)
     if not V:
         return None
@@ -254,7 +288,8 @@ def dump_hashes(sysaddr, samaddr):
         if not nthash:
             nthash = empty_nt
         results.append(
-            "%s:%d:%s:%s:::" % (get_user_name(user), int(user.Name, 16), lmhash.encode('hex'), nthash.encode('hex')))
+            "%s:%d:%s:%s:::" % (get_user_name(user), int(user.Name, 16), codecs.encode(lmhash, 'hex').decode(),
+                                codecs.encode(nthash, 'hex').decode()))
     return results
 
 

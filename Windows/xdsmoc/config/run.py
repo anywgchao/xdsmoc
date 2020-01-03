@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python
 import ctypes
-import getpass
 import logging
 import sys
 import traceback
@@ -184,9 +183,7 @@ def run_xdsmoc(category_selected='all', subcategories={}, password=None):
             constant.stdout_result.append(constant.finalResults)
 
     # ------ Part used for user impersonation ------
-
     constant.is_current_user = True
-    # constant.username = getpass.getuser().decode(sys.getfilesystemencoding())
     constant.username = get_username_winapi()
     if not constant.username.endswith('$'):
         

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import json
 import os
 import random
@@ -11,6 +12,7 @@ import traceback
 from xdsmoc.config.constant import constant
 from xdsmoc.config.module_info import ModuleInfo
 from xdsmoc.config.winstructure import Win32CryptUnprotectData
+from xdsmoc.softwares.windows.credman import Credman
 
 
 class ChromiumBased(ModuleInfo):
@@ -30,6 +32,12 @@ class ChromiumBased(ModuleInfo):
             if os.path.exists(profiles_path):
                 # List all users profile (empty string means current dir, without a profile)
                 profiles = {'Default', ''}
+
+                # Automatic join all other additional profiles
+                for dirs in os.listdir(path):
+                    dirs_path = os.path.join(path, dirs)
+                    if (os.path.isdir(dirs_path) == True) and (dirs.startswith('Profile')):
+                        profiles.extend(dirs)
                 with open(profiles_path) as f:
                     try:
                         data = json.load(f)
@@ -50,7 +58,7 @@ class ChromiumBased(ModuleInfo):
                             databases.add(os.path.join(path, profile, db))
         return databases
 
-    def _export_credentials(self, db_path):
+    def _export_credentials(self, db_path, is_yandex=False):
         """
         Export credentials from the given database
 
@@ -60,20 +68,52 @@ class ChromiumBased(ModuleInfo):
         """
 
         credentials = []
+        yandex_enckey = None
+
+        if is_yandex:
+            try:
+                credman_passwords = Credman().run()
+                for credman_password in credman_passwords:
+                    if b'Yandex' in credman_password.get('URL', b''):
+                        if credman_password.get('Password'):
+                            yandex_enckey = credman_password.get('Password')
+                            self.info('EncKey found: {encKey}'.format(encKey=repr(yandex_enckey)))
+            except Exception:
+                self.debug(traceback.format_exc())
+                # Passwords could not be decrypted without encKey
+                self.info('EncKey has not been retrieved')
+                return []
 
         try:
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             cursor.execute(self.database_query)
-        except Exception as e:
-            self.debug(str(e))
+        except Exception:
+            self.debug(traceback.format_exc())
             return credentials
 
         for url, login, password, create_time in cursor.fetchall():
             try:
-                # Decrypt the Password
-                password = Win32CryptUnprotectData(password, is_current_user=constant.is_current_user,
-                                                   user_dpapi=constant.user_dpapi)
+                # Yandex passwords use a masterkey stored on windows credential manager
+                # https://yandex.com/support/browser-passwords-crypto/without-master.html
+                if is_yandex and yandex_enckey:
+                    try:
+                        p = json.loads(str(password))
+                    except Exception:
+                        p = json.loads(password)
+
+                    password = base64.b64decode(p['p'])
+
+                    # Passwords are stored using AES-256-GCM algorithm
+                    # The key used to encrypt is stored on the credential manager
+
+                    # from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+                    # aesgcm = AESGCM(yandex_enckey)
+                    # Failed...
+                else:
+                    # Decrypt the Password
+                    password = Win32CryptUnprotectData(password, is_current_user=constant.is_current_user,
+                                                       user_dpapi=constant.user_dpapi)
                 if not url and not login and not password:
                     continue
 
@@ -88,7 +128,7 @@ class ChromiumBased(ModuleInfo):
         """
         Copying db will bypass lock errors
         Using user tempfile will produce an error when impersonating users (Permission denied)
-        A public directory should be used if this error occured (e.g C:\\Users\\Public) 
+        A public directory should be used if this error occured (e.g C:\\Users\\Public)
         """
         random_name = ''.join([random.choice(string.ascii_lowercase) for i in range(9)])
         root_dir = [
@@ -115,6 +155,7 @@ class ChromiumBased(ModuleInfo):
     def run(self):
         credentials = []
         for database_path in self._get_database_dirs():
+            is_yandex = False if 'yandex' not in database_path.lower() else True    # yandex浏览器支持
             # Remove Google Chrome false positif
             if database_path.endswith('Login Data-journal'):
                 continue
@@ -125,7 +166,7 @@ class ChromiumBased(ModuleInfo):
             path = self.copy_db(database_path)
             if path:
                 try:
-                    credentials.extend(self._export_credentials(path))
+                    credentials.extend(self._export_credentials(path, is_yandex))
                 except Exception:
                     self.debug(traceback.format_exc())
                 self.clean_file(path)
@@ -138,6 +179,7 @@ class ChromiumBased(ModuleInfo):
 chromium_browsers = [
     (u'7Star', u'{LOCALAPPDATA}\\7Star\\7Star\\User Data'),
     (u'amigo', u'{LOCALAPPDATA}\\Amigo\\User Data'),
+    (u'brave', u'{LOCALAPPDATA}\\BraveSoftware\\Brave-Browser\\User Data'),
     (u'brave', u'{APPDATA}\\brave'),
     (u'centbrowser', u'{LOCALAPPDATA}\\CentBrowser\\User Data'),
     (u'chedot', u'{LOCALAPPDATA}\\Chedot\\User Data'),

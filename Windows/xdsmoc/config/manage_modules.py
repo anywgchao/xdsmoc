@@ -33,6 +33,8 @@ from xdsmoc.softwares.maven.mavenrepositories import MavenRepositories
 # Memory
 from xdsmoc.softwares.memory.keepass import Keepass
 from xdsmoc.softwares.memory.memorydump import MemoryDump
+# Multimedia
+from xdsmoc.softwares.multimedia.eyecon import EyeCON
 # Php
 from xdsmoc.softwares.php.composer import Composer
 # Svn
@@ -42,9 +44,13 @@ from xdsmoc.softwares.sysadmin.apachedirectorystudio import ApacheDirectoryStudi
 from xdsmoc.softwares.sysadmin.coreftp import CoreFTP
 from xdsmoc.softwares.sysadmin.cyberduck import Cyberduck
 from xdsmoc.softwares.sysadmin.filezilla import Filezilla
+from xdsmoc.softwares.sysadmin.filezillaserver import FilezillaServer
 from xdsmoc.softwares.sysadmin.ftpnavigator import FtpNavigator
 from xdsmoc.softwares.sysadmin.opensshforwindows import OpenSSHForWindows
 from xdsmoc.softwares.sysadmin.openvpn import OpenVPN
+from xdsmoc.softwares.sysadmin.iiscentralcertp import IISCentralCertP
+from xdsmoc.softwares.sysadmin.keepassconfig import KeePassConfig
+from xdsmoc.softwares.sysadmin.iisapppool import IISAppPool
 from xdsmoc.softwares.sysadmin.puttycm import Puttycm
 from xdsmoc.softwares.sysadmin.rdpmanager import RDPManager
 from xdsmoc.softwares.sysadmin.unattended import Unattended
@@ -78,6 +84,7 @@ def get_categories():
         'mails': {'help': 'Email clients supported'},
         'maven': {'help': 'Maven java build tool'},
         'memory': {'help': 'Retrieve passwords from memory'},
+        'multimedia': {'help': 'Multimedia applications, etc'},
         'php': {'help': 'PHP build tool'},
         'svn': {'help': 'SVN clients supported'},
         'sysadmin': {'help': 'SCP/SSH/FTP/FTPS clients supported'},
@@ -124,6 +131,9 @@ def get_modules():
         MemoryDump(),  # retrieve browsers and keepass passwords
         Keepass(),  # should be launched after memory dump
 
+        # Multimedia
+        EyeCON(),
+
         # Php
         Composer(),
 
@@ -135,10 +145,14 @@ def get_modules():
         CoreFTP(),
         Cyberduck(),
         Filezilla(),
+        FilezillaServer(),
         FtpNavigator(),
+        KeePassConfig(),
         Puttycm(),
         OpenSSHForWindows(),
         OpenVPN(),
+        IISCentralCertP(),
+        IISAppPool(),
         RDPManager(),
         Unattended(),
         WinSCP(),
@@ -158,7 +172,7 @@ def get_modules():
         CredFiles(),
         Vault(),
         VaultFiles(),
-        WindowsPassword()
+        WindowsPassword(),
 
     ]
     return module_names + chromium_browsers + firefox_browsers

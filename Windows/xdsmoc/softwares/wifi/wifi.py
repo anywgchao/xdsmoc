@@ -37,7 +37,7 @@ class Wifi(ModuleInfo):
                         stdout=PIPE,
                         stderr=PIPE)
         stdout, stderr = process.communicate()
-        for st in stdout.split('\n'):
+        for st in stdout.decode().split('\n'):
             if any(i in st.lower() for i in language_keys):
                 password = st.split(':')[1].strip()
                 return password
@@ -52,7 +52,6 @@ class Wifi(ModuleInfo):
             if os.path.exists(interfaces_dir):
 
                 pwd_found = []
-
                 for wifi_dir in os.listdir(interfaces_dir):
                     if os.path.isdir(os.path.join(interfaces_dir, wifi_dir)):
 
@@ -78,9 +77,6 @@ class Wifi(ModuleInfo):
                                     if elem.tag.endswith('protected'):
                                         values['Protected'] = elem.text
 
-                                    if elem.tag.endswith('encryption'):
-                                        values['Encryption'] = elem.text
-
                                     if elem.tag.endswith('keyMaterial'):
                                         key = elem.text
                                         try:
@@ -98,7 +94,7 @@ class Wifi(ModuleInfo):
                                             self.error(traceback.format_exc())
                                             values['INFO'] = '[!] Password not found.'
 
-                                if values and values['Authentication'] != 'open':
+                                if values and values.get('Authentication') != 'open':
                                     pwd_found.append(values)
 
                 constant.wifi_password = True

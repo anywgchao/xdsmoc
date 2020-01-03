@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*- 
 
+import codecs
+import os
+
 from xdsmoc.config.DPAPI.masterkey import MasterKeyPool
 from xdsmoc.config.DPAPI.credfile import CredFile
 from xdsmoc.config.DPAPI.vault import Vault
@@ -9,10 +12,6 @@ from xdsmoc.config.DPAPI.blob import DPAPIBlob
 from xdsmoc.config.write_output import print_debug
 from xdsmoc.config.constant import constant
 from xdsmoc.softwares.windows.lsa_secrets import LSASecrets
-
-import getpass
-import os
-import sys
 
 
 def are_masterkeys_retrieved():
@@ -81,7 +80,7 @@ class UserDpapi(object):
                                 print_debug('ERROR', r)
 
                     elif pwdhash:
-                        for ok, r in self.umkp.try_credential_hash(self.sid, pwdhash=pwdhash.decode('hex')):
+                        for ok, r in self.umkp.try_credential_hash(self.sid,  pwdhash=codecs.decode(pwdhash, 'hex')):
                             if ok:
                                 self.unlocked = True
                                 print_debug('OK', r)
@@ -169,7 +168,7 @@ class SystemDpapi(object):
             if os.path.exists(masterkeydir):
                 self.smkp = MasterKeyPool()
                 self.smkp.load_directory(masterkeydir)
-                self.smkp.add_system_credential(constant.lsa_secrets['DPAPI_SYSTEM'])
+                self.smkp.add_system_credential(constant.lsa_secrets[b'DPAPI_SYSTEM'])
                 for ok, r in self.smkp.try_system_credential():
                     if ok:
                         print_debug('OK', r)

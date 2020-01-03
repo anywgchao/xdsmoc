@@ -12,5 +12,5 @@ if __name__ == '__main__':
     if os.path.isdir(dist_path) and os.path.isdir(build_path):
         shutil.rmtree(dist_path)
         shutil.rmtree(build_path)
-    xd_cmd = 'pyinstaller -F xd.py --upx-dir ./upx-3.95-win64 --icon ./icon/xd.ico'
+    xd_cmd = 'pyinstaller -F xundong.py --upx-dir ./upx-3.95-win64 --icon ./icon/xundong.ico'
     subprocess.Popen(xd_cmd, shell=True)

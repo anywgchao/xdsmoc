@@ -1,0 +1,44 @@
+  
+Xdsmoc 1.4 (21/11/2019)
+- Windows / Linux / Mac
+	* Big code review and lots of bug fixed
+	* PEP8 Style
+	* Pycrypto denpendency removed
+
+- Linux
+	* Removing external libs to decrypt KDE secrets (only use dbus)
+	* Bug fix
+
+- Windows
+	* Adding pypykatz module
+	* Adding VNC module
+	* Adding KeePass Config File module
+	* Adding FilezillaServer module
+	* Adding IIS AppPool Password module
+	* Adding IIS Central Certificate Store module
+	* Manage more than 26 different browsers now
+	* Removing construct on DPAPI function (lots of bug fix on DPAPI as well)
+	* Removing psutil dependency
+
+Xdsmoc 1.3.2 (06/10/2018)
+- Windows
+	* Big code review
+	* Lots of minor bug fixed
+	* If windows user password found => domain passwords retrieved from credentials files
+	* If windows user password not found => DPAPI hash printed to bruteforce with john or hashcat (no admin privilege required)
+	* New modules added postgresql and psi-im
+	* XP managed
+	* Adding support for newest firefox version.
+	* Adding Wdigest passwords (using mimikatz signature) 
+		* Works on Vista / Win7 x86 and x64
+	* Note: right now, LaZagne x86 cannot read memory from a x64 process (so some modules cannot work using this build such as wdigest passwords)
+		* That's why, two lazagne binaries have been built (x86 and x64).
+
+- Linux
+	* Big code review
+	* Lots of minor bug fixed
+	* Adding support for newest firefox version.
+Xdsmoc 1.0 (18/10/2017)
+- Only Windows
+	* Fix unicode issue (#154)
+	* Print less local output when a specific drive has been choosed (#156)

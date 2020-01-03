@@ -378,9 +378,10 @@ def desfunc(block, keys):
 
 # test
 if __name__ == '__main__':
-    key = '0123456789abcdef'.decode('hex')
-    plain = '0123456789abcdef'.decode('hex')
-    cipher = '6e09a37726dd560c'.decode('hex')
+    import binascii
+    key = binascii.unhexlify('0123456789abcdef')
+    plain = binascii.unhexlify('0123456789abcdef')
+    cipher = binascii.unhexlify('6e09a37726dd560c')
     ek = deskey(key, False)
     dk = deskey(key, True)
     assert desfunc(plain, ek) == cipher

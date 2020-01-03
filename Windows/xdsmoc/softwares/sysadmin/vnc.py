@@ -1,8 +1,7 @@
 # Code based on vncpasswd.py by trinitronx
 # https://github.com/trinitronx/vncpasswd.py
-import os
-from . import d3des as d
 import binascii
+import codecs
 import traceback
 
 try:
@@ -10,7 +9,7 @@ try:
 except ImportError:
     import winreg
 
-from xdsmoc.config.crypto.pyDes import des, ECB
+from . import d3des as d
 from xdsmoc.config.winstructure import *
 from xdsmoc.config.module_info import ModuleInfo
 
@@ -32,11 +31,11 @@ class Vnc(ModuleInfo):
 
     def unhex(self, s):
         try:
-            s = s.decode('hex')
+            s = codecs.decode(s, 'hex')
         except TypeError as e:
             if e.message == 'Odd-length string':
                 self.debug('%s . Chopping last char off... "%s"' % (e.message, s[:-1]))
-                s = s[:-1].decode('hex')
+                s = codecs.decode(s[:-1], 'hex')
             else:
                 return False
         return s
@@ -48,13 +47,13 @@ class Vnc(ModuleInfo):
             # If the hex encoded passwd length is longer than 16 hex chars and divisible
             # by 16, then we chop the passwd into blocks of 64 bits (16 hex chars)
             # (1 hex char = 4 binary bits = 1 nibble)
-            hexpasswd = encpasswd.encode('hex')
+            hexpasswd = codecs.encode(encpasswd, 'hex')
             if len(hexpasswd) > 16 and (len(hexpasswd) % 16) == 0:
-                splitstr = self.split_len(hash.encode('hex'), 16)
+                splitstr = self.split_len(codecs.encode(hash, 'hex'), 16)
                 cryptedblocks = []
                 for sblock in splitstr:
-                    cryptedblocks.append(self.do_crypt(sblock.decode('hex'), True))
-                    pwd = ''.join(cryptedblocks)
+                    cryptedblocks.append(self.do_crypt(codecs.decode(sblock, 'hex'), True))
+                    pwd = b''.join(cryptedblocks)
             elif len(hexpasswd) <= 16:
                 pwd = self.do_crypt(encpasswd, True)
             else:
@@ -66,6 +65,7 @@ class Vnc(ModuleInfo):
         vncs = (
             ('RealVNC 4.x', 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\RealVNC\\WinVNC4', 'Password'),
             ('RealVNC 3.x', 'HKEY_LOCAL_MACHINE\\SOFTWARE\\RealVNC\\vncserver', 'Password'),
+            ('RealVNC 4.x', 'HKEY_LOCAL_MACHINE\\SOFTWARE\\RealVNC\\WinVNC4', 'Password'),
             ('RealVNC 4.x', 'HKEY_CURRENT_USER\\SOFTWARE\\RealVNC\\WinVNC4', 'Password'),
             ('RealVNC 3.x', 'HKEY_CURRENT_USER\\Software\\ORL\\WinVNC3', 'Password'),
             ('TightVNC', 'HKEY_CURRENT_USER\\Software\\TightVNC\\Server', 'Password'),

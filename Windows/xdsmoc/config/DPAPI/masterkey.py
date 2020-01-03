@@ -75,7 +75,7 @@ class MasterKey(DataStruct):
         This function also extracts the HMAC part of the decrypted stuff and compare it with the computed one.
         Note that, once successfully decrypted, the masterkey will not be decrypted anymore; this function will simply return.
         """
-        if self.decrypted:
+        if self.decrypted or not pwdhash:
             return
 
         # Compute encryption key
@@ -83,7 +83,7 @@ class MasterKey(DataStruct):
                                       self.rounds)
         self.key = cleartxt[-64:]
         hmacSalt = cleartxt[:16]
-        hmac = cleartxt[16:16 + self.hashAlgo.digestLength]
+        hmac = cleartxt[16:16 + int(self.hashAlgo.digestLength)]
         hmacComputed = crypto.DPAPIHmac(self.hashAlgo, pwdhash, hmacSalt, self.key)
         self.decrypted = hmac == hmacComputed
         if self.decrypted:
@@ -306,7 +306,9 @@ class MasterKeyPool(object):
                 
                 GUID = struct.unpack("<LHH", GUID1)
                 GUID2 = struct.unpack(">HLH", GUID2)
-                self.preferred_guid = "%s-%s-%s-%s-%s%s" % (format(GUID[0], '08x'), format(GUID[1], '04x'), format(GUID[2], '04x'), format(GUID2[0], '04x'), format(GUID2[1], '08x'), format(GUID2[2], '04x'))
+                self.preferred_guid = "%s-%s-%s-%s-%s%s" % (
+                    format(GUID[0], '08x'), format(GUID[1], '04x'), format(GUID[2], '04x'), format(GUID2[0], '04x'),
+                    format(GUID2[1], '08x'), format(GUID2[2], '04x'))
                 return self.preferred_guid
 
         return False
@@ -348,41 +350,40 @@ class MasterKeyPool(object):
         Should be called as a generator (ex: for r in try_credential(sid, password))
         """
 
-        # All master key files have been already decrypted
-        if self.nb_mkf_decrypted == self.nb_mkf:
-            raise StopIteration()
+        # All master key files have not been already decrypted
+        if self.nb_mkf_decrypted != self.nb_mkf:
+            # raise StopIteration()
+            for guid in self.keys:
+                for mkf in self.keys[guid].get('mkf', ''):
+                    if not mkf.decrypted:
+                        mk = mkf.masterkey
+                        if mk:
+                            mk.decrypt_with_password(sid, password)
+                            if not mk.decrypted and self.credhists.get(sid) is not None:
+                                # Try using credhist file
+                                self.credhists[sid].decrypt_with_password(password)
+                                for credhist in self.credhists[sid].entries_list:
+                                    mk.decrypt_with_hash(sid, credhist.pwdhash)
+                                    if credhist.ntlm is not None and not mk.decrypted:
+                                        mk.decrypt_with_hash(sid, credhist.ntlm)
 
-        for guid in self.keys:
-            for mkf in self.keys[guid].get('mkf', ''):
-                if not mkf.decrypted:
-                    mk = mkf.masterkey
-                    if mk:
-                        mk.decrypt_with_password(sid, password)
-                        if not mk.decrypted and self.credhists.get(sid) is not None:
-                            # Try using credhist file
-                            self.credhists[sid].decrypt_with_password(password)
-                            for credhist in self.credhists[sid].entries_list:
-                                mk.decrypt_with_hash(sid, credhist.pwdhash)
-                                if credhist.ntlm is not None and not mk.decrypted:
-                                    mk.decrypt_with_hash(sid, credhist.ntlm)
+                                    if mk.decrypted:
+                                        yield u'masterkey {masterkey} decrypted using credhists key'.format(
+                                            masterkey=mk.guid.decode())
+                                        self.credhists[sid].valid = True
 
-                                if mk.decrypted:
-                                    yield u'masterkey {masterkey} decrypted using credhists key'.format(
-                                        masterkey=mk.guid)
-                                    self.credhists[sid].valid = True
+                            if mk.decrypted:
+                                # Save the password found
+                                self.keys[mkf.guid]['password'] = password
+                                mkf.decrypted = True
+                                self.nb_mkf_decrypted += 1
 
-                        if mk.decrypted:
-                            # Save the password found
-                            self.keys[mkf.guid]['password'] = password
-                            mkf.decrypted = True
-                            self.nb_mkf_decrypted += 1
+                                yield True, u'{password} ok for masterkey {masterkey}'.format(
+                                    password=password, masterkey=mkf.guid.decode())
 
-                            yield True, u'{password} ok for masterkey {masterkey}'.format(password=password,
-                                                                                    masterkey=mkf.guid)
-
-                        else:
-                            yield False, u'{password} not ok for masterkey {masterkey}'.format(password=password,
-                                                                                        masterkey=mkf.guid)
+                            else:
+                                yield False, u'{password} not ok for masterkey {masterkey}'.format(
+                                    password=password, masterkey=mkf.guid.decode())
 
     def try_credential_hash(self, sid, pwdhash=None):
         """
@@ -390,35 +391,36 @@ class MasterKeyPool(object):
         Should be called as a generator (ex: for r in try_credential_hash(sid, pwdhash))
         """
 
-        # All master key files have been already decrypted
-        if self.nb_mkf_decrypted == self.nb_mkf:
-            raise StopIteration()
+        # All master key files have not been already decrypted
+        if self.nb_mkf_decrypted != self.nb_mkf:
+            # raise StopIteration()
+            for guid in self.keys:
+                for mkf in self.keys[guid].get('mkf', ''):
+                    if not mkf.decrypted:
+                        mk = mkf.masterkey
+                        mk.decrypt_with_hash(sid, pwdhash)
+                        if not mk.decrypted and self.credhists.get(sid) is not None:
+                            # Try using credhist file
+                            self.credhists[sid].decrypt_with_hash(pwdhash)
+                            for credhist in self.credhists[sid].entries_list:
+                                mk.decrypt_with_hash(sid, credhist.pwdhash)
+                                if credhist.ntlm is not None and not mk.decrypted:
+                                    mk.decrypt_with_hash(sid, credhist.ntlm)
 
-        for guid in self.keys:
-            for mkf in self.keys[guid].get('mkf', ''):
-                if not mkf.decrypted:
-                    mk = mkf.masterkey
-                    mk.decrypt_with_hash(sid, pwdhash)
-                    if not mk.decrypted and self.credhists.get(sid) is not None:
-                        # Try using credhist file
-                        self.credhists[sid].decrypt_with_hash(pwdhash)
-                        for credhist in self.credhists[sid].entries_list:
-                            mk.decrypt_with_hash(sid, credhist.pwdhash)
-                            if credhist.ntlm is not None and not mk.decrypted:
-                                mk.decrypt_with_hash(sid, credhist.ntlm)
+                                if mk.decrypted:
+                                    yield True, u'masterkey {masterkey} decrypted using credhists key'.format(
+                                        masterkey=mk.guid)
+                                    self.credhists[sid].valid = True
+                                    break
 
-                            if mk.decrypted:
-                                yield True, u'masterkey {masterkey} decrypted using credhists key'.format(
-                                    masterkey=mk.guid)
-                                self.credhists[sid].valid = True
-                                break
-
-                    if mk.decrypted:
-                        mkf.decrypted = True
-                        self.nb_mkf_decrypted += 1
-                        yield True, u'{hash} ok for masterkey {masterkey}'.format(hash=codecs.encode(pwdhash, 'hex'), masterkey=mkf.guid)
-                    else:
-                        yield False, u'{hash} not ok for masterkey {masterkey}'.format(hash=codecs.encode(pwdhash, 'hex'), masterkey=mkf.guid)
+                        if mk.decrypted:
+                            mkf.decrypted = True
+                            self.nb_mkf_decrypted += 1
+                            yield True, u'{hash} ok for masterkey {masterkey}'.format(
+                                hash=codecs.encode(pwdhash, 'hex').decode(), masterkey=mkf.guid.decode())
+                        else:
+                            yield False, u'{hash} not ok for masterkey {masterkey}'.format(
+                                hash=codecs.encode(pwdhash, 'hex').decode(), masterkey=mkf.guid.decode())
 
     def try_system_credential(self):
         """
@@ -437,7 +439,7 @@ class MasterKeyPool(object):
                         mkf.decrypted = True
                         self.nb_mkf_decrypted += 1
 
-                        yield True, u'System masterkey decrypted for {masterkey}'.format(masterkey=mkf.guid)
+                        yield True, u'System masterkey decrypted for {masterkey}'.format(masterkey=mkf.guid.decode())
                     else:
                         yield False, u'System masterkey not decrypted for masterkey {masterkey}'.format(
-                            masterkey=mkf.guid)
+                            masterkey=mkf.guid.decode())

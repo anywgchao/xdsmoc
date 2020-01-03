@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
-import os
 import json
+import os
 
 from xdsmoc.config.constant import constant
 from xdsmoc.config.module_info import ModuleInfo
@@ -29,6 +28,8 @@ class Robomongo(ModuleInfo):
 
     def parse_json(self, connection_file_path):
         repos_creds = []
+        if not os.path.exists(connection_file_path):
+            return repos_creds
         with open(connection_file_path) as connection_file:
             try:
                 connections_infos = json.load(connection_file)

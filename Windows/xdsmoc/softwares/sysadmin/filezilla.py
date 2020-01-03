@@ -43,7 +43,7 @@ class Filezilla(ModuleInfo):
                                 'Login': login.text,
                             }
 
-                        if password.tag:
+                        if password is not None:
                             if 'encoding' in password.attrib and password.attrib['encoding'] == 'base64':
                                 values['Password'] = base64.b64decode(password.text)
                             else:

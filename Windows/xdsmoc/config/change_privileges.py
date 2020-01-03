@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 # Original code from https://github.com/joren485/PyWinPrivEsc/blob/master/RunAsSystem.py
 
-import os
+
 import sys
 import traceback
 
 from xdsmoc.config.write_output import print_debug
 from xdsmoc.config.winstructure import *
+import os
 
 
 def get_token_info(hToken):
@@ -36,7 +37,7 @@ def enable_privilege(privilegeStr, hToken=None):
     """
     Enable Privilege on token, if no token is given the function gets the token of the current process.
     """
-    if hToken is None:
+    if hToken == None:
         hToken = HANDLE(INVALID_HANDLE_VALUE)
         if not hToken:
             return False

@@ -26,7 +26,9 @@ def start_winforeground_daemon():
 
 
 def window_foreground_loop(timeout=20):
-    """ set the windows python console to the foreground (for example when you are working with a fullscreen program) """
+    """ set the windows python console to the foreground
+    (for example when you are working with a fullscreen program)
+    """
     hwnd = windll.kernel32.GetConsoleWindow()
     HWND_TOPMOST = -1
     SWP_NOMOVE = 2

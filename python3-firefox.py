@@ -16,6 +16,7 @@
 
 # Based on original work from: www.dumpzilla.org
 
+
 import argparse
 import csv
 import ctypes as ct

@@ -19,7 +19,8 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-import hashlib, os
+import hashlib
+import os
 
 from .rawreg import *
 from ..addrspace import HiveFileAddressSpace
@@ -35,9 +36,9 @@ def get_lsa_key(secaddr, bootkey, vista):
         return None
 
     if vista:
-        enc_reg_key = open_key(root, ["Policy", "PolEKList"])
+        enc_reg_key = open_key(root, [b"Policy", b"PolEKList"])
     else:
-        enc_reg_key = open_key(root, ["Policy", "PolSecretEncryptionKey"])
+        enc_reg_key = open_key(root, [b"Policy", b"PolSecretEncryptionKey"])
 
     if not enc_reg_key:
         return None
@@ -46,8 +47,7 @@ def get_lsa_key(secaddr, bootkey, vista):
     if not enc_reg_value:
         return None
 
-    obf_lsa_key = secaddr.read(enc_reg_value.Data.value,
-            enc_reg_value.DataLength.value)
+    obf_lsa_key = secaddr.read(enc_reg_value.Data.value, enc_reg_value.DataLength.value)
     if not obf_lsa_key:
         return None
 
@@ -72,7 +72,7 @@ def decrypt_secret(secret, key):
 
     Decrypts a block of data with DES using given key.
     Note that key can be longer than 7 bytes."""
-    decrypted_data = ''
+    decrypted_data = b''
     j = 0   # key index
     for i in range(0,len(secret),8):
         enc_block = secret[i:i+8]
@@ -82,7 +82,7 @@ def decrypt_secret(secret, key):
 
         try:
             decrypted_data += crypter.decrypt(enc_block)
-        except:
+        except Exception:
             continue
 
         j += 7
@@ -100,7 +100,7 @@ def decrypt_aes(secret, key):
         sha.update(secret[28:60])
     aeskey = sha.digest()
 
-    data = ""
+    data = b""
     for i in range(60, len(secret), 16):
         aes = AESModeOfOperationCBC(aeskey, iv="\x00"*16)
         buf = secret[i : i + 16]
@@ -117,7 +117,7 @@ def get_secret_by_name(secaddr, name, lsakey, vista):
     if not root:
         return None
 
-    enc_secret_key = open_key(root, ["Policy", "Secrets", name, "CurrVal"])
+    enc_secret_key = open_key(root, [b"Policy", b"Secrets", name, b"CurrVal"])
     if not enc_secret_key:
         return None
 
@@ -125,8 +125,7 @@ def get_secret_by_name(secaddr, name, lsakey, vista):
     if not enc_secret_value:
         return None
 
-    enc_secret = secaddr.read(enc_secret_value.Data.value,
-            enc_secret_value.DataLength.value)
+    enc_secret = secaddr.read(enc_secret_value.Data.value, enc_secret_value.DataLength.value)
     if not enc_secret:
         return None
 
@@ -146,13 +145,13 @@ def get_secrets(sysaddr, secaddr, vista):
     bootkey = get_bootkey(sysaddr)
     lsakey = get_lsa_key(secaddr, bootkey, vista)
 
-    secrets_key = open_key(root, ["Policy", "Secrets"])
+    secrets_key = open_key(root, [b"Policy", b"Secrets"])
     if not secrets_key:
         return None
 
     secrets = {}
     for key in subkeys(secrets_key):
-        sec_val_key = open_key(key, ["CurrVal"])
+        sec_val_key = open_key(key, [b"CurrVal"])
         if not sec_val_key:
             continue
 
@@ -160,8 +159,7 @@ def get_secrets(sysaddr, secaddr, vista):
         if not enc_secret_value:
             continue
 
-        enc_secret = secaddr.read(enc_secret_value.Data.value,
-                enc_secret_value.DataLength.value)
+        enc_secret = secaddr.read(enc_secret_value.Data.value, enc_secret_value.DataLength.value)
         if not enc_secret:
             continue
 

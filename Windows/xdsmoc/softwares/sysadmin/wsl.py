@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-import base64
 
 from xdsmoc.config.module_info import ModuleInfo
 from xdsmoc.config.constant import constant
-from xdsmoc.config.dico import get_dic
 
 import os
 
@@ -39,8 +37,6 @@ class Wsl(ModuleInfo):
 
                     # Check if a password is defined
                     if not line[1] in ['x', '*', '!']:
-                        user = line[0]
-                        crypt_pwd = line[1]
                         pwd_found.append({
                             'Hash': ':'.join(user_hash.split(':')[1:]),
                             'Login': user_hash.split(':')[0].replace('\n', '')

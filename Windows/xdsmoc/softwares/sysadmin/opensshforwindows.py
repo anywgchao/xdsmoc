@@ -58,7 +58,7 @@ class OpenSSHForWindows(ModuleInfo):
                             # Determine the type of the key (public/private) and what is it algorithm
                             if "DSA PRIVATE KEY" in key_content_encoded:
                                 key_algorithm = "DSA"
-                            elif "RSA PRIVATE KEY" in key_content_encoded:
+                            elif "RSA PRIVATE KEY" in key_content_encoded or "OPENSSH PRIVATE KEY" in key_content_encoded:
                                 key_algorithm = "RSA"
                             else:
                                 key_algorithm = None
@@ -84,7 +84,7 @@ class OpenSSHForWindows(ModuleInfo):
         # Parse and process the list of keys
         key_found = []
         for key in unprotected_private_keys:
-            values = {"PrivateKey": key}
+            values = {"Privatekey": key}
             key_found.append(values)
 
         return key_found

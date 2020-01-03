@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python
 import os
-# import sys
 import ctypes
+import sys
+
 
 from xdsmoc.config.winstructure import get_os_version
 from xdsmoc.config.constant import constant
@@ -51,8 +52,10 @@ def set_env_variables(user, to_impersonate=False):
         # Get value from environment variables
         for env in constant.profile:
             if os.environ.get(env):
-                constant.profile[env] = os.environ.get(env)
-                # constant.profile[env] = os.environ.get(env).decode(sys.getfilesystemencoding())
+                try:
+                    constant.profile[env] = os.environ.get(env).decode(sys.getfilesystemencoding())
+                except Exception:
+                    constant.profile[env] = os.environ.get(env)
 
     # Replace "drive" and "user" with the correct values
     for env in constant.profile:
@@ -60,13 +63,13 @@ def set_env_variables(user, to_impersonate=False):
 
 
 def get_username_winapi():
-    getUserName = ctypes.windll.advapi32.GetUserNameW
-    getUserName.argtypes = [ctypes.c_wchar_p, ctypes.POINTER(ctypes.c_uint)]
-    getUserName.restype = ctypes.c_uint
+    GetUserNameW = ctypes.windll.advapi32.GetUserNameW
+    GetUserNameW.argtypes = [ctypes.c_wchar_p, ctypes.POINTER(ctypes.c_uint)]
+    GetUserNameW.restype = ctypes.c_uint
 
     _buffer = ctypes.create_unicode_buffer(1)
     size = ctypes.c_uint(len(_buffer))
-    while not getUserName(_buffer, ctypes.byref(size)):
+    while not GetUserNameW(_buffer, ctypes.byref(size)):
         # WinError.h
         # define ERROR_INSUFFICIENT_BUFFER        122L    // dderror
         if ctypes.GetLastError() == 122:
@@ -74,6 +77,6 @@ def get_username_winapi():
             size.value = len(_buffer)
 
         else:
-            return  # Unusual error
+            return os.getenv('username') # Unusual error
 
     return _buffer.value

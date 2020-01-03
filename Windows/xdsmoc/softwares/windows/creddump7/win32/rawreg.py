@@ -33,7 +33,7 @@ def get_root(address_space):
 
 
 def open_key(root, key):
-    if key == []:
+    if not key:
         return root
 
     keyname = key.pop(0)

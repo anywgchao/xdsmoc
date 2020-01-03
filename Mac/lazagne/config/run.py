@@ -66,7 +66,7 @@ def run_module(module, subcategories):
     for i in modules_to_launch:
         try:
             constant.st.title_info(i.capitalize())  # print title
-            pwd_found = module[i].run  # run the module
+            pwd_found = module[i].run()  # run the module
             constant.st.print_output(i.capitalize(), pwd_found)  # print the results
 
             # Return value - not used but needed
@@ -141,7 +141,7 @@ def run_lazagne(category_selected='all', subcategories={}, password=None, intera
     # If keychains has been decrypted, launch again some module
     chrome_key = get_safe_storage_key('Chrome Safe Storage')
     if chrome_key:
-        for r in run_module({'chrome': Chrome(safe_storage_key=chrome_key)}):
+        for r in run_module({'chrome': Chrome(safe_storage_key=chrome_key)}, subcategories):
             yield r
 
     constant.stdout_result.append(constant.finalResults)

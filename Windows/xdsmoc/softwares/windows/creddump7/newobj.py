@@ -105,7 +105,15 @@ class Obj(object):
             return Pointer(tp, self.address+off, self.space, ptp)
         else:
             return Obj(tp, self.address+off, self.space)
-    
+
+    def __truediv__(self, other):
+        if isinstance(other, (tuple, list)):
+            return Pointer(other[0], self.address, self.space, other[1])
+        elif isinstance(other, str):
+            return Obj(other, self.address, self.space)
+        else:
+            raise ValueError("Must provide a type name as string for casting")
+
     def __div__(self, other):
         if isinstance(other,tuple) or isinstance(other,list):
             return Pointer(other[0], self.address, self.space, other[1])
@@ -186,8 +194,10 @@ class Primitive(Obj):
         super(Primitive,self).__init__(name, address, space)
         length, fmt = builtin_types[name]
         data = space.read(address,length)
-        if not data: self.value = None
-        else: self.value = unpack(fmt,data)[0]
+        if not data:
+            self.value = None
+        else:
+            self.value = unpack(fmt, data)[0]
     
     def __repr__(self):
         return repr(self.value)
@@ -262,8 +272,7 @@ class _CM_KEY_NODE(Obj):
         return obj
 
     def getName(self):
-        return read_string(self.space, types, ['_CM_KEY_NODE', 'Name'],
-            self.address, self.NameLength.value)
+        return read_string(self.space, types, ['_CM_KEY_NODE', 'Name'], self.address, self.NameLength.value)
     Name = property(fget=getName)
 
 
@@ -273,8 +282,7 @@ class _CM_KEY_VALUE(Obj):
         return obj
 
     def getName(self):
-        return read_string(self.space, types, ['_CM_KEY_VALUE', 'Name'],
-            self.address, self.NameLength.value)
+        return read_string(self.space, types, ['_CM_KEY_VALUE', 'Name'], self.address, self.NameLength.value)
     Name = property(fget=getName)
 
 
@@ -285,11 +293,9 @@ class _CHILD_LIST(Obj):
 
     def getList(self):
         lst = []
-        list_address = read_obj(self.space, types,
-            ['_CHILD_LIST', 'List'], self.address)
+        list_address = read_obj(self.space, types, ['_CHILD_LIST', 'List'], self.address)
         for i in range(self.Count.value):
-            lst.append(Pointer("pointer", list_address+(i*4), self.space,
-                ["_CM_KEY_VALUE"]))
+            lst.append(Pointer("pointer", list_address+(i*4), self.space, ["_CM_KEY_VALUE"]))
         return lst
     List = property(fget=getList)
 
@@ -304,7 +310,6 @@ class _CM_KEY_INDEX(Obj):
         for i in range(self.Count.value):
             # we are ignoring the hash value here
             off,tp = get_obj_offset(types, ['_CM_KEY_INDEX', 'List', i*2])
-            lst.append(Pointer("pointer", self.address+off, self.space,
-                ["_CM_KEY_NODE"]))
+            lst.append(Pointer("pointer", self.address+off, self.space, ["_CM_KEY_NODE"]))
         return lst
     List = property(fget=getList)

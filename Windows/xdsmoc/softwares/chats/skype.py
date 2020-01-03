@@ -43,7 +43,6 @@ class Skype(ModuleInfo):
             k = winreg.EnumValue(hkey, 0)[1]
             return win.Win32CryptUnprotectData(k, is_current_user=constant.is_current_user, user_dpapi=constant.user_dpapi)
         except Exception as e:
-            print(e)
             self.debug(str(e))
             return False
 

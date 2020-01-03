@@ -8,7 +8,6 @@
 ##############################################################################
 
 # Disclaimer: Do Not Use this program for illegal purposes ;)
-password='123123'
 
 import sys
 import os
@@ -192,11 +191,6 @@ if __name__ == '__main__':
     args = dict(parser.parse_args()._get_kwargs())
     arguments = parser.parse_args()
 
-    quiet_mode(is_quiet_mode=args['quiet'])
-
-    # Print the title
-    constant.st.first_title()
-
     # Define constant variables
     output(
         output_dir=args['output'],
@@ -205,6 +199,10 @@ if __name__ == '__main__':
         all_format=args['write_all']
     )
     verbosity(verbose=args['verbose'])
+    quiet_mode(is_quiet_mode=args['quiet'])
+
+    # Print the title
+    constant.st.first_title()
 
     start_time = time.time()
 

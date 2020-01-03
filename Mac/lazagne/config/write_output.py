@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 from lazagne.config.constant import constant
+from platform import uname
 from time import gmtime, strftime
 import logging
 import getpass
@@ -34,20 +35,17 @@ class StandardOutput(object):
 
     def set_color(self, color=None):
         b = Bcolors()
-        if color == 'white':
-            sys.stdout.write(b.TITLE)
-        elif color == 'red':
-            sys.stdout.write(b.FAIL)
-        elif color == 'green':
-            sys.stdout.write(b.OK)
-        elif color == 'cyan':
-            sys.stdout.write(b.WARNING)
-        else:
-            sys.stdout.write(b.ENDC)
+        sys.stdout.write({'white': b.TITLE,
+                          'red': b.FAIL,
+                          'green': b.OK,
+                          'cyan': b.WARNING}.get(color, b.ENDC))
 
     # Print banner
     def first_title(self):
         self.do_print(message=self.banner, color='white')
+        # Python 3.7.3 on Darwin x86_64: i386
+        python_banner = 'Python {}.{}.{} on'.format(*sys.version_info) + " {0} {4}: {5}\n".format(*uname())
+        self.print_logging(function=logging.debug, prefix='[!]', message=python_banner, color='white')
 
     # Info option for the logging
     def print_title(self, title):
@@ -101,9 +99,9 @@ class StandardOutput(object):
 
     def try_unicode(self, obj, encoding='utf-8'):
         try:
-            if isinstance(obj, basestring):
-                if not isinstance(obj, unicode):
-                    obj = unicode(obj, encoding)
+            if isinstance(obj, basestring):       # noqa: F821
+                if not isinstance(obj, unicode):  # noqa: F821
+                    obj = unicode(obj, encoding)  # noqa: F821
         except Exception:
             pass
         return obj
@@ -178,17 +176,23 @@ class StandardOutput(object):
                 if not password_category:
                     print_debug("ERROR", "Password not found !!!")
                 else:
-                    print_debug("OK", '%s found !!!' % password_category[0].title())
-                    to_write.append(pwd)
-
                     # Store all passwords found on a table => for dictionary attack if master password set
                     constant.nbPasswordFound += 1
+                    passwd = None
                     try:
                         passwd = pwd[password_category[0].capitalize()]
                         if passwd not in constant.passwordFound:
                             constant.passwordFound.append(passwd)
                     except Exception:
                         pass
+                    
+                # Password field is empty
+                if not passwd:
+                    print_debug("FAILED", u'Password not found !!!')
+                else:
+                    print_debug("OK", u'{password_category} found !!!'.format(
+                        password_category=password_category[0].title()))
+                    to_write.append(pwd)
 
                 for p in pwd.keys():
                     self.do_print('%s: %s' % (p, pwd[p]))
@@ -251,7 +255,7 @@ def parse_json_result_to_buffer(json_string, color=False):
                                         title_color=title,
                                         password_category=all_passwords[0]['Category'],
                                         reset_color=reset
-                        )
+                                    )
                         for password_by_category in all_passwords[1]:
                             buffer += '\r\n{green_color}Password found !!!{reset_color}\r\n'.format(
                                 green_color=green,
@@ -276,18 +280,18 @@ def write_in_file(result):
     """
     Write output to file (json and txt files)
     """
-    if constant.output == 'json' or constant.output == 'all':
+    if constant.output in ('json', 'all'):
         try:
             # Human readable Json format
             pretty_json = json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
             with open(os.path.join(constant.folder_name, constant.file_name_results + '.json'), 'a+b') as f:
-                f.write(pretty_json.decode('unicode-escape').encode('UTF-8'))
+                f.write(pretty_json.encode('UTF-8'))
             constant.st.do_print(
                 '[+] File written: ' + constant.folder_name + os.sep + constant.file_name_results + '.json')
         except Exception as e:
             print_debug('ERROR', 'Error writing the output file: %s' % e)
 
-    if constant.output == 'txt' or constant.output == 'all':
+    if constant.output in ('txt', 'all'):
         try:
             with open(os.path.join(constant.folder_name, constant.file_name_results + '.txt'), 'a+b') as f:
                 a = parse_json_result_to_buffer(result)
