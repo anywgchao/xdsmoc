@@ -130,18 +130,6 @@ Windows 2003/7/10 上 x86_64/x86_32 测试无问题
     ```
 
 ---
-
-### Linux 工具
-
-* [[操作系统支持：CentOS6+ Ubuntu12+]]
-
-* Linux 密码捕获
-1、启动守护进程xundong_ssh_listen，如果有账号登陆，则记录到/tmp/pwd-kit.txt 文件中
-
-    ```C++
-    ./xdsmoc_ssh_listen -d -o /tmp/pwd-kit.txt
-    ```
-
 其它依赖工具
 <https://github.com/n1nj4sec/mimipy>
 mimikatz
