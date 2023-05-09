@@ -12,7 +12,7 @@ from xdsmoc.config.crypto.pyaes.aes import AESModeOfOperationCBC
 from xdsmoc.config.dico import get_dic
 from xdsmoc.config.module_info import ModuleInfo
 
-try: 
+try:
     import _winreg as winreg
 except ImportError:
     import winreg
@@ -41,7 +41,9 @@ class Skype(ModuleInfo):
 
             # num = winreg.QueryInfoKey(hkey)[1]
             k = winreg.EnumValue(hkey, 0)[1]
-            return win.Win32CryptUnprotectData(k, is_current_user=constant.is_current_user, user_dpapi=constant.user_dpapi)
+            result_bytes = win.Win32CryptUnprotectData(
+                k, is_current_user=constant.is_current_user, user_dpapi=constant.user_dpapi)
+            return result_bytes.decode("utf-16")
         except Exception as e:
             self.debug(str(e))
             return False
@@ -61,7 +63,8 @@ class Skype(ModuleInfo):
         enc_binary = binascii.unhexlify(enc_hex)
 
         # retrieve the salt
-        salt = hashlib.sha1('\x00\x00\x00\x00' + key).digest() + hashlib.sha1('\x00\x00\x00\x01' + key).digest()
+        salt = hashlib.sha1('\x00\x00\x00\x00' + key).digest() + \
+            hashlib.sha1('\x00\x00\x00\x01' + key).digest()
 
         # encrypt value used with the XOR operation
         aes_key = self.aes_encrypt(struct.pack('I', 0) * 4, salt[0:32])[0:16]
@@ -69,7 +72,8 @@ class Skype(ModuleInfo):
         # XOR operation
         decrypted = []
         for d in range(16):
-            decrypted.append(struct.unpack('B', enc_binary[d])[0] ^ struct.unpack('B', aes_key[d])[0])
+            decrypted.append(struct.unpack('B', enc_binary[d])[
+                             0] ^ struct.unpack('B', aes_key[d])[0])
 
         # cast the result byte
         tmp = ''
@@ -106,17 +110,21 @@ class Skype(ModuleInfo):
                 values['Login'] = username
 
                 # get encrypted hash from the config file
-                enc_hex = self.get_hash_credential(os.path.join(path, u'config.xml'))
+                enc_hex = self.get_hash_credential(
+                    os.path.join(path, u'config.xml'))
 
                 if not enc_hex:
-                    self.warning(u'No credential stored on the config.xml file.')
+                    self.warning(
+                        u'No credential stored on the config.xml file.')
                 else:
                     # decrypt the hash to get the md5 to brue force
                     values['Hash'] = self.get_md5_hash(enc_hex, key)
-                    values['Pattern to bruteforce using md5'] = win.string_to_unicode(values['Login']) + u'\\nskyper\\n<password>'
+                    values['Pattern to bruteforce using md5'] = win.string_to_unicode(
+                        values['Login']) + u'\\nskyper\\n<password>'
 
                     # Try a dictionary attack on the hash
-                    password = self.dictionary_attack(values['Login'], values['Hash'])
+                    password = self.dictionary_attack(
+                        values['Login'], values['Hash'])
                     if password:
                         values['Password'] = password
 

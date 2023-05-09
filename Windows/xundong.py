@@ -103,7 +103,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=constant.st.banner, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-version', action='version', version='Version ' + str(constant.CURRENT_VERSION),
-                        help='XD version')
+                        help='Show Version')
 
     # ------------------------------------------- Permanent options -------------------------------------------
     # Version and verbosity

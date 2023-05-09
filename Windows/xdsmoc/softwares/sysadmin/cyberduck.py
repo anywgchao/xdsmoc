@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 import base64
-
+import os
 from xml.etree.cElementTree import ElementTree
 
-from xdsmoc.config.module_info import ModuleInfo
-from xdsmoc.config.winstructure import Win32CryptUnprotectData
 from xdsmoc.config.constant import constant
-from xdsmoc.config.winstructure import string_to_unicode
-
-import os
+from xdsmoc.config.module_info import ModuleInfo
+from xdsmoc.config.winstructure import (Win32CryptUnprotectData,
+                                        string_to_unicode)
 
 
 class Cyberduck(ModuleInfo):
@@ -22,7 +20,8 @@ class Cyberduck(ModuleInfo):
             for dr in os.listdir(directory):
                 if dr.startswith(u'Cyberduck'):
                     for d in os.listdir(os.path.join(directory, string_to_unicode(dr))):
-                        path = os.path.join(directory, string_to_unicode(dr), string_to_unicode(d), u'user.config')
+                        path = os.path.join(directory, string_to_unicode(
+                            dr), string_to_unicode(d), u'user.config')
                         return path
 
     def run(self):
@@ -36,11 +35,13 @@ class Cyberduck(ModuleInfo):
                     if elem.attrib['name'].startswith('ftp') or elem.attrib['name'].startswith('ftps') \
                             or elem.attrib['name'].startswith('sftp') or elem.attrib['name'].startswith('http') \
                             or elem.attrib['name'].startswith('https'):
-                        encrypted_password = base64.b64decode(elem.attrib['value'])
-                        password = Win32CryptUnprotectData(encrypted_password, is_current_user=constant.is_current_user, user_dpapi=constant.user_dpapi)
+                        encrypted_password = base64.b64decode(
+                            elem.attrib['value'])
+                        password_bytes = Win32CryptUnprotectData(
+                            encrypted_password, is_current_user=constant.is_current_user, user_dpapi=constant.user_dpapi)
                         pwd_found.append({
                             'URL': elem.attrib['name'],
-                            'Password': password,
+                            'Password': password_bytes.decode("utf-8"),
                         })
                 except Exception as e:
                     self.debug(str(e))

@@ -5,15 +5,16 @@ try:
 except ImportError:
     import winreg
 
-from xdsmoc.config.winstructure import *
-from xdsmoc.config.module_info import ModuleInfo
-from xdsmoc.config.winstructure import Win32CryptUnprotectData
 from xdsmoc.config.constant import constant
+from xdsmoc.config.module_info import ModuleInfo
+from xdsmoc.config.winstructure import *
+from xdsmoc.config.winstructure import Win32CryptUnprotectData
 
 
 class OpenVPN(ModuleInfo):
     def __init__(self):
-        ModuleInfo.__init__(self, name='openvpn', category='sysadmin', registry_used=True, winapi_used=True)
+        ModuleInfo.__init__(
+            self, name='openvpn', category='sysadmin', registry_used=True, winapi_used=True)
 
     def check_openvpn_installed(self):
         try:
@@ -24,10 +25,11 @@ class OpenVPN(ModuleInfo):
             return False
 
     def decrypt_password(self, encrypted_password, entropy):
-        return Win32CryptUnprotectData(encrypted_password,
-                                       entropy=entropy,
-                                       is_current_user=constant.is_current_user,
-                                       user_dpapi=constant.user_dpapi)
+        result_bytes = Win32CryptUnprotectData(encrypted_password,
+                                               entropy=entropy,
+                                               is_current_user=constant.is_current_user,
+                                               user_dpapi=constant.user_dpapi)
+        return result_bytes.decode("utf-8")
 
     def get_credentials(self, key):
         pwd_found = []

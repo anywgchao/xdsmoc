@@ -23,12 +23,11 @@ import hmac
 import struct
 import sys
 
-
+from xdsmoc.config.crypto.pyaes.aes import (AESModeOfOperationCBC,
+                                            AESModeOfOperationECB)
+from xdsmoc.config.crypto.pyDes import CBC, ECB, des, triple_des
 from xdsmoc.config.crypto.rc4 import RC4
-from xdsmoc.config.crypto.pyaes.aes import AESModeOfOperationCBC, AESModeOfOperationECB
-from xdsmoc.config.crypto.pyDes import triple_des, des, ECB, CBC
 from xdsmoc.config.winstructure import char_to_int, chr_or_byte
-
 
 try:
     xrange
@@ -115,10 +114,14 @@ CryptoAlgo.add_algo(0x6601, name="DES", keyLength=64, blockLength=64, IVLength=6
                     keyFixup=des_set_odd_parity)
 CryptoAlgo.add_algo(0x6603, name="DES3", keyLength=192, blockLength=64, IVLength=64, module=triple_des,
                     keyFixup=des_set_odd_parity)
-CryptoAlgo.add_algo(0x6611, name="AES", keyLength=128, blockLength=128, IVLength=128)
-CryptoAlgo.add_algo(0x660e, name="AES-128", keyLength=128, blockLength=128, IVLength=128)
-CryptoAlgo.add_algo(0x660f, name="AES-192", keyLength=192, blockLength=128, IVLength=128)
-CryptoAlgo.add_algo(0x6610, name="AES-256", keyLength=256, blockLength=128, IVLength=128)
+CryptoAlgo.add_algo(0x6611, name="AES", keyLength=128,
+                    blockLength=128, IVLength=128)
+CryptoAlgo.add_algo(0x660e, name="AES-128", keyLength=128,
+                    blockLength=128, IVLength=128)
+CryptoAlgo.add_algo(0x660f, name="AES-192", keyLength=192,
+                    blockLength=128, IVLength=128)
+CryptoAlgo.add_algo(0x6610, name="AES-256", keyLength=256,
+                    blockLength=128, IVLength=128)
 CryptoAlgo.add_algo(0x8009, name="HMAC", digestLength=160, blockLength=512)
 CryptoAlgo.add_algo(0x8003, name="md5", digestLength=128, blockLength=512)
 CryptoAlgo.add_algo(0x8004, name="sha1", digestLength=160, blockLength=512)
@@ -147,8 +150,10 @@ def CryptSessionKeyXP(masterkey, nonce, hashAlgo, entropy=None, strongPassword=N
         masterkey = hashlib.sha1(masterkey).digest()
 
     masterkey += b"\x00" * int(hashAlgo.blockSize)
-    ipad = b"".join(chr_or_byte(char_to_int(masterkey[i]) ^ 0x36) for i in range(int(hashAlgo.blockSize)))
-    opad = b"".join(chr_or_byte(char_to_int(masterkey[i]) ^ 0x5c) for i in range(int(hashAlgo.blockSize)))
+    ipad = b"".join(chr_or_byte(char_to_int(
+        masterkey[i]) ^ 0x36) for i in range(int(hashAlgo.blockSize)))
+    opad = b"".join(chr_or_byte(char_to_int(
+        masterkey[i]) ^ 0x5c) for i in range(int(hashAlgo.blockSize)))
     digest = hashlib.new(hashAlgo.name)
     digest.update(ipad)
     digest.update(nonce)
@@ -159,7 +164,8 @@ def CryptSessionKeyXP(masterkey, nonce, hashAlgo, entropy=None, strongPassword=N
     if entropy is not None:
         digest.update(entropy)
     if strongPassword is not None:
-        strongPassword = hashlib.sha1(strongPassword.rstrip("\x00").encode("UTF-16LE")).digest()
+        strongPassword = hashlib.sha1(
+            strongPassword.rstrip("\x00").encode("UTF-16LE")).digest()
         digest.update(strongPassword)
     elif verifBlob is not None:
         digest.update(verifBlob)
@@ -189,7 +195,8 @@ def CryptSessionKeyWin7(masterkey, nonce, hashAlgo, entropy=None, strongPassword
     if entropy is not None:
         digest.update(entropy)
     if strongPassword is not None:
-        strongPassword = hashlib.sha512(strongPassword.rstrip("\x00").encode("UTF-16LE")).digest()
+        strongPassword = hashlib.sha512(
+            strongPassword.rstrip("\x00").encode("UTF-16LE")).digest()
         digest.update(strongPassword)
     elif verifBlob is not None:
         digest.update(verifBlob)
@@ -205,9 +212,12 @@ def CryptDeriveKey(h, cipherAlgo, hashAlgo):
     if len(h) >= cipherAlgo.keyLength:
         return h
     h += b"\x00" * int(hashAlgo.blockSize)
-    ipad = b"".join(chr_or_byte(char_to_int(h[i]) ^ 0x36) for i in range(int(hashAlgo.blockSize)))
-    opad = b"".join(chr_or_byte(char_to_int(h[i]) ^ 0x5c) for i in range(int(hashAlgo.blockSize)))
-    k = hashlib.new(hashAlgo.name, ipad).digest() + hashlib.new(hashAlgo.name, opad).digest()
+    ipad = b"".join(chr_or_byte(char_to_int(h[i]) ^ 0x36)
+                    for i in range(int(hashAlgo.blockSize)))
+    opad = b"".join(chr_or_byte(char_to_int(h[i]) ^ 0x5c)
+                    for i in range(int(hashAlgo.blockSize)))
+    k = hashlib.new(hashAlgo.name, ipad).digest() + \
+        hashlib.new(hashAlgo.name, opad).digest()
     k = k[:cipherAlgo.keyLength]
     k = cipherAlgo.do_fixup_key(k)
     return k
@@ -236,16 +246,19 @@ def decrypt_lsa_key_nt6(lsakey, syskey):
         dg.update(lsakey[28:60])
 
     k = AESModeOfOperationECB(dg.digest())
-    keys = b"".join([k.encrypt(lsakey[60:][i:i + AES_BLOCK_SIZE]) for i in range(0, len(lsakey[60:]), AES_BLOCK_SIZE)])
+    keys = b"".join([k.encrypt(lsakey[60:][i:i + AES_BLOCK_SIZE])
+                     for i in range(0, len(lsakey[60:]), AES_BLOCK_SIZE)])
 
     size = struct.unpack_from("<L", keys)[0]
     keys = keys[16:16 + size]
-    currentkey = "%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % struct.unpack("<L2H8B", keys[4:20])
+    currentkey = b"%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % struct.unpack(
+        "<L2H8B", keys[4:20])
     nb = struct.unpack("<L", keys[24:28])[0]
     off = 28
     kd = {}
     for i in range(nb):
-        g = "%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % struct.unpack("<L2H8B", keys[off:off + 16])
+        g = b"%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % struct.unpack(
+            "<L2H8B", keys[off:off + 16])
         t, l = struct.unpack_from("<2L", keys[off + 16:])
         k = keys[off + 24:off + 24 + l]
         kd[g] = {"type": t, "key": k}
@@ -267,12 +280,18 @@ def SystemFunction005(secret, key):
         block_key = key[j:j + 7]
         des_key = []
         des_key.append(char_to_int(block_key[0]) >> 1)
-        des_key.append(((char_to_int(block_key[0]) & 0x01) << 6) | (char_to_int(block_key[1]) >> 2))
-        des_key.append(((char_to_int(block_key[1]) & 0x03) << 5) | (char_to_int(block_key[2]) >> 3))
-        des_key.append(((char_to_int(block_key[2]) & 0x07) << 4) | (char_to_int(block_key[3]) >> 4))
-        des_key.append(((char_to_int(block_key[3]) & 0x0F) << 3) | (char_to_int(block_key[4]) >> 5))
-        des_key.append(((char_to_int(block_key[4]) & 0x1F) << 2) | (char_to_int(block_key[5]) >> 6))
-        des_key.append(((char_to_int(block_key[5]) & 0x3F) << 1) | (char_to_int(block_key[6]) >> 7))
+        des_key.append(((char_to_int(block_key[0]) & 0x01) << 6) | (
+            char_to_int(block_key[1]) >> 2))
+        des_key.append(((char_to_int(block_key[1]) & 0x03) << 5) | (
+            char_to_int(block_key[2]) >> 3))
+        des_key.append(((char_to_int(block_key[2]) & 0x07) << 4) | (
+            char_to_int(block_key[3]) >> 4))
+        des_key.append(((char_to_int(block_key[3]) & 0x0F) << 3) | (
+            char_to_int(block_key[4]) >> 5))
+        des_key.append(((char_to_int(block_key[4]) & 0x1F) << 2) | (
+            char_to_int(block_key[5]) >> 6))
+        des_key.append(((char_to_int(block_key[5]) & 0x3F) << 1) | (
+            char_to_int(block_key[6]) >> 7))
         des_key.append(char_to_int(block_key[6]) & 0x7F)
         des_key = algo.do_fixup_key("".join([chr(x << 1) for x in des_key]))
 
@@ -288,7 +307,8 @@ def decrypt_lsa_secret(secret, lsa_keys):
     """
     This function replaces SystemFunction005 for newer Windows
     """
-    keyid = "%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % struct.unpack("<L2H8B", secret[4:20])
+    keyid = b"%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % struct.unpack(
+        "<L2H8B", secret[4:20])
     if keyid not in lsa_keys:
         return None
     algo = struct.unpack("<L", secret[20:24])[0]
@@ -298,7 +318,8 @@ def decrypt_lsa_secret(secret, lsa_keys):
         dg.update(secret[28:60])
 
     c = AESModeOfOperationECB(dg.digest())
-    clear = b"".join([c.encrypt(secret[60:][i:i + AES_BLOCK_SIZE]) for i in range(0, len(secret[60:]), AES_BLOCK_SIZE)])
+    clear = b"".join([c.encrypt(secret[60:][i:i + AES_BLOCK_SIZE])
+                      for i in range(0, len(secret[60:]), AES_BLOCK_SIZE)])
 
     size = struct.unpack_from("<L", clear)[0]
     return clear[16:16 + size]
@@ -314,9 +335,11 @@ def pbkdf2(passphrase, salt, keylen, iterations, digest='sha1'):
     while len(buff) < keylen:
         U = salt + struct.pack("!L", i)
         i += 1
-        derived = hmac.new(passphrase, U, digestmod=lambda: hashlib.new(digest)).digest()
+        derived = hmac.new(
+            passphrase, U, digestmod=lambda: hashlib.new(digest)).digest()
         for r in xrange(iterations - 1):
-            actual = hmac.new(passphrase, derived, digestmod=lambda: hashlib.new(digest)).digest()
+            actual = hmac.new(passphrase, derived,
+                              digestmod=lambda: hashlib.new(digest)).digest()
             tmp = b''
             for x, y in zip(derived, actual):
                 if sys.version_info > (3, 0):
@@ -340,14 +363,17 @@ def dataDecrypt(cipherAlgo, hashAlgo, raw, encKey, iv, rounds):
     Internal use. Decrypts data stored in DPAPI structures.
     """
     hname = {"HMAC": "sha1"}.get(hashAlgo.name, hashAlgo.name)
-    derived = pbkdf2(encKey, iv, cipherAlgo.keyLength + cipherAlgo.ivLength, rounds, hname)
-    key, iv = derived[:int(cipherAlgo.keyLength)], derived[int(cipherAlgo.keyLength):]
+    derived = pbkdf2(encKey, iv, cipherAlgo.keyLength +
+                     cipherAlgo.ivLength, rounds, hname)
+    key, iv = derived[:int(cipherAlgo.keyLength)
+                      ], derived[int(cipherAlgo.keyLength):]
     key = key[:int(cipherAlgo.keyLength)]
     iv = iv[:int(cipherAlgo.ivLength)]
 
     if "AES" in cipherAlgo.name:
         cipher = AESModeOfOperationCBC(key, iv=iv)
-        cleartxt = b"".join([cipher.decrypt(raw[i:i + AES_BLOCK_SIZE]) for i in range(0, len(raw), AES_BLOCK_SIZE)])
+        cleartxt = b"".join([cipher.decrypt(raw[i:i + AES_BLOCK_SIZE])
+                             for i in range(0, len(raw), AES_BLOCK_SIZE)])
     else:
         cipher = cipherAlgo.module(key, CBC, iv)
         cleartxt = cipher.decrypt(raw)

@@ -24,6 +24,7 @@ class ModuleInfo(object):
         self.name = name
         self.category = category
         self.options = {
+
             'command': '-{name}'.format(name=self.name),
             'action': 'store_true',
             'dest': self.name,

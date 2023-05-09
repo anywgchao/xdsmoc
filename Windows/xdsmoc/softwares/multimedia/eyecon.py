@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import codecs
 
+from xdsmoc.config.module_info import ModuleInfo
+from xdsmoc.config.winstructure import *
+
 try:
     import _winreg as winreg
 except ImportError:
     import winreg
-
-from xdsmoc.config.module_info import ModuleInfo
-from xdsmoc.config.winstructure import *
 
 
 class EyeCON(ModuleInfo):
@@ -15,11 +15,12 @@ class EyeCON(ModuleInfo):
     eyeCON software WAll management software
     infos at http://www.eyevis.de/en/products/wall-management-software.html
     """
+
     def __init__(self):
-        self.hex_key = [ 35, 231, 64, 111, 100, 72, 95, 65, 68, 51, 52, 70, 67, 51, 65, 95, 54, 55, 50, 48, 95, 49, 49,
-             68, 54, 95, 65, 48, 53, 50, 95, 48, 48, 48, 52, 55, 54, 65, 48, 70, 66, 53, 66, 65, 70, 88, 95, 76, 79, 71,
-             73, 49, 76, 115, 107, 100, 85, 108, 107, 106, 102, 100, 109, 32, 50, 102, 115, 100, 102, 102, 32, 102, 119,
-             115, 38, 78, 68, 76, 76, 95, 72, 95, 95, 0 ]
+        self.hex_key = [35, 231, 64, 111, 100, 72, 95, 65, 68, 51, 52, 70, 67, 51, 65, 95, 54, 55, 50, 48, 95, 49, 49,
+                        68, 54, 95, 65, 48, 53, 50, 95, 48, 48, 48, 52, 55, 54, 65, 48, 70, 66, 53, 66, 65, 70, 88, 95, 76, 79, 71,
+                        73, 49, 76, 115, 107, 100, 85, 108, 107, 106, 102, 100, 109, 32, 50, 102, 115, 100, 102, 102, 32, 102, 119,
+                        115, 38, 78, 68, 76, 76, 95, 72, 95, 95, 0]
         ModuleInfo.__init__(self, name='EyeCon', category='multimedia')
 
     def deobfuscate(self, ciphered_str):
@@ -28,12 +29,18 @@ class EyeCON(ModuleInfo):
     def get_db_hosts(self):
         hosts = []
         paths = (
-            ('EyeCON DB Host', HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\eyevis\\eyeDB', 'DB1'),
-            ('EyeCON DB Host', HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\eyevis\\eyeDB', 'DB2'),
-            ('EyeCON DB Host', HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\eyevis\\eyeDB', 'DB3'),
-            ('EyeCON DB Host', HKEY_LOCAL_MACHINE, 'SOFTWARE\\eyevis\\eyeDB', 'DB1'),
-            ('EyeCON DB Host', HKEY_LOCAL_MACHINE, 'SOFTWARE\\eyevis\\eyeDB', 'DB2'),
-            ('EyeCON DB Host', HKEY_LOCAL_MACHINE, 'SOFTWARE\\eyevis\\eyeDB', 'DB3'),
+            ('EyeCON DB Host', HKEY_LOCAL_MACHINE,
+             'SOFTWARE\\WOW6432Node\\eyevis\\eyeDB', 'DB1'),
+            ('EyeCON DB Host', HKEY_LOCAL_MACHINE,
+             'SOFTWARE\\WOW6432Node\\eyevis\\eyeDB', 'DB2'),
+            ('EyeCON DB Host', HKEY_LOCAL_MACHINE,
+             'SOFTWARE\\WOW6432Node\\eyevis\\eyeDB', 'DB3'),
+            ('EyeCON DB Host', HKEY_LOCAL_MACHINE,
+             'SOFTWARE\\eyevis\\eyeDB', 'DB1'),
+            ('EyeCON DB Host', HKEY_LOCAL_MACHINE,
+             'SOFTWARE\\eyevis\\eyeDB', 'DB2'),
+            ('EyeCON DB Host', HKEY_LOCAL_MACHINE,
+             'SOFTWARE\\eyevis\\eyeDB', 'DB3'),
         )
         for path in paths:
             try:
@@ -42,8 +49,6 @@ class EyeCON(ModuleInfo):
                 if reg_key:
                     hosts += [reg_key]
             except Exception:
-                # skipping if value doesn't exist
-                # self.debug(u'Problems with key:: {reg_key}'.format(reg_key=path[1]+path[2]))
                 pass
         return hosts
 
@@ -67,25 +72,31 @@ class EyeCON(ModuleInfo):
             try:
                 try:
                     hkey = OpenKey(path['reg_root'], path['reg_path'])
-                    reg_user_key = winreg.QueryValueEx(hkey, path['user_key'])[0]
-                    reg_password_key = winreg.QueryValueEx(hkey, path['password_key'])[0]
+                    reg_user_key = winreg.QueryValueEx(
+                        hkey, path['user_key'])[0]
+                    reg_password_key = winreg.QueryValueEx(
+                        hkey, path['password_key'])[0]
                 except Exception:
-                    self.debug(u'Problems with key:: {reg_key}'.format(reg_key=path['reg_root'] + path['reg_path']))
+                    self.debug(u'Problems with key:: {reg_key}'.format(
+                        reg_key=path['reg_root'] + path['reg_path']))
                     continue
 
                 try:
                     user = self.deobfuscate(reg_user_key)
                 except Exception:
-                    self.info(u'Problems with deobfuscate user : {reg_key}'.format(reg_key=path['reg_path']))
+                    self.info(u'Problems with deobfuscate user : {reg_key}'.format(
+                        reg_key=path['reg_path']))
                     continue
 
                 try:
                     password = self.deobfuscate(reg_password_key)
                 except Exception:
-                    self.info(u'Problems with deobfuscate password : {reg_key}'.format(reg_key=path['reg_path']))
+                    self.info(u'Problems with deobfuscate password : {reg_key}'.format(
+                        reg_key=path['reg_path']))
                     continue
 
-                found_passwords.append({'username': user, 'password': password})
+                found_passwords.append(
+                    {'username': user, 'password': password})
             except Exception:
                 pass
         return found_passwords

@@ -1,9 +1,15 @@
-# -*- coding: utf-8 -*- 
-import tempfile
+'''
+@Author: Daboluo
+@Date: 2019-11-20 16:59:32
+@LastEditTime: 2020-06-11 18:37:11
+@LastEditors: Do not edit
+'''
+# -*- coding: utf-8 -*-
+import os
 import random
 import string
+import tempfile
 import time
-import os
 
 date = time.strftime("%d%m%Y_%H%M%S")
 tmp = tempfile.gettempdir()
@@ -58,3 +64,4 @@ class constant():
         "winapi": [],
         "dpapi": [],
     }
+    dpapi_cache = {}

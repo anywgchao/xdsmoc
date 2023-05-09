@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 import os
-
-try: 
-    from urlparse import urlparse
-except ImportError: 
-    from urllib import parse as urlparse
 
 from xdsmoc.config.constant import constant
 from xdsmoc.config.module_info import ModuleInfo
 from xdsmoc.config.winstructure import string_to_unicode
+
+try:
+    from urlparse import urlparse, unquote
+except ImportError:
+    from urllib.parse import urlparse, unquote
 
 
 class GitForWindows(ModuleInfo):
@@ -31,9 +31,10 @@ class GitForWindows(ModuleInfo):
                     if len(cred) > 0:
                         parts = urlparse(cred)
                         pwd_found.append((
-                            parts.geturl().replace(parts.username + ":" + parts.password + "@", "").strip(),
-                            parts.username,
-                            parts.password
+                            unquote(parts.geturl().replace(
+                                parts.username + ":" + parts.password + "@", "").strip()),
+                            unquote(parts.username),
+                            unquote(parts.password)
                         ))
 
         return pwd_found
@@ -47,10 +48,12 @@ class GitForWindows(ModuleInfo):
         # Build a list of locations in which git credentials can be stored
         locations = [
             os.path.join(constant.profile["USERPROFILE"], u'.git-credentials'),
-            os.path.join(constant.profile["USERPROFILE"], u'.config\\git\\credentials'),
+            os.path.join(
+                constant.profile["USERPROFILE"], u'.config\\git\\credentials'),
         ]
         if "XDG_CONFIG_HOME" in os.environ:
-            locations.append(os.path.join(string_to_unicode(os.environ.get('XDG_CONFIG_HOME')), u'git\\credentials'))
+            locations.append(os.path.join(string_to_unicode(
+                os.environ.get('XDG_CONFIG_HOME')), u'git\\credentials'))
 
         # Apply the password extraction on the defined locations
         pwd_found = []

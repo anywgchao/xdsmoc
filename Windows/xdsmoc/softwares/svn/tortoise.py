@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 import base64
+import os
 
+from xdsmoc.config.constant import constant
 from xdsmoc.config.module_info import ModuleInfo
 from xdsmoc.config.winstructure import Win32CryptUnprotectData
-from xdsmoc.config.constant import constant
-
-import os
 
 
 class Tortoise(ModuleInfo):
@@ -14,7 +13,8 @@ class Tortoise(ModuleInfo):
 
     def run(self):
         pwd_found = []
-        path = os.path.join(constant.profile["APPDATA"], u'Subversion\\auth\\svn.simple')
+        path = os.path.join(
+            constant.profile["APPDATA"], u'Subversion\\auth\\svn.simple')
         if os.path.exists(path):
             for root, dirs, files in os.walk(path + os.sep):
                 for filename in files:
@@ -57,11 +57,12 @@ class Tortoise(ModuleInfo):
                     # encrypted the password
                     if result:
                         try:
-                            password = Win32CryptUnprotectData(base64.b64decode(result), is_current_user=constant.is_current_user, user_dpapi=constant.user_dpapi)
+                            password_bytes = Win32CryptUnprotectData(base64.b64decode(
+                                result), is_current_user=constant.is_current_user, user_dpapi=constant.user_dpapi)
                             pwd_found.append({
                                 'URL': url,
                                 'Login': username,
-                                'Password': str(password)
+                                'Password': password_bytes.decode("utf-8")
                             })
                         except Exception:
                             pass

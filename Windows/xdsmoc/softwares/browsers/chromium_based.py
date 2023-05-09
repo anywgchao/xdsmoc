@@ -77,7 +77,8 @@ class ChromiumBased(ModuleInfo):
                     if b'Yandex' in credman_password.get('URL', b''):
                         if credman_password.get('Password'):
                             yandex_enckey = credman_password.get('Password')
-                            self.info('EncKey found: {encKey}'.format(encKey=repr(yandex_enckey)))
+                            self.info('EncKey found: {encKey}'.format(
+                                encKey=repr(yandex_enckey)))
             except Exception:
                 self.debug(traceback.format_exc())
                 # Passwords could not be decrypted without encKey
@@ -112,8 +113,9 @@ class ChromiumBased(ModuleInfo):
                     # Failed...
                 else:
                     # Decrypt the Password
-                    password = Win32CryptUnprotectData(password, is_current_user=constant.is_current_user,
-                                                       user_dpapi=constant.user_dpapi)
+                    password_bytes = Win32CryptUnprotectData(password, is_current_user=constant.is_current_user,
+                                                             user_dpapi=constant.user_dpapi)
+                    password = password_bytes.decode("utf-8")
                 if not url and not login and not password:
                     continue
 
@@ -130,7 +132,8 @@ class ChromiumBased(ModuleInfo):
         Using user tempfile will produce an error when impersonating users (Permission denied)
         A public directory should be used if this error occured (e.g C:\\Users\\Public)
         """
-        random_name = ''.join([random.choice(string.ascii_lowercase) for i in range(9)])
+        random_name = ''.join(
+            [random.choice(string.ascii_lowercase) for i in range(9)])
         root_dir = [
             tempfile.gettempdir(),
             os.environ.get('PUBLIC', None),
@@ -140,7 +143,8 @@ class ChromiumBased(ModuleInfo):
             try:
                 temp = os.path.join(r, random_name)
                 shutil.copy(database_path, temp)
-                self.debug(u'Temporary db copied: {db_path}'.format(db_path=temp))
+                self.debug(
+                    u'Temporary db copied: {db_path}'.format(db_path=temp))
                 return temp
             except Exception:
                 self.debug(traceback.format_exc())
@@ -155,7 +159,7 @@ class ChromiumBased(ModuleInfo):
     def run(self):
         credentials = []
         for database_path in self._get_database_dirs():
-            is_yandex = False if 'yandex' not in database_path.lower() else True    # yandex浏览器支持
+            is_yandex = False if 'yandex' not in database_path.lower() else True
             # Remove Google Chrome false positif
             if database_path.endswith('Login Data-journal'):
                 continue
@@ -166,12 +170,13 @@ class ChromiumBased(ModuleInfo):
             path = self.copy_db(database_path)
             if path:
                 try:
-                    credentials.extend(self._export_credentials(path, is_yandex))
+                    credentials.extend(
+                        self._export_credentials(path, is_yandex))
                 except Exception:
                     self.debug(traceback.format_exc())
                 self.clean_file(path)
 
-        return [{'URL': url, 'Login': login, 'Password': password, 'Create_time': create_time} \
+        return [{'URL': url, 'Login': login, 'Password': password, 'CreateTime': create_time}
                 for url, login, password, create_time in set(credentials)]
 
 
@@ -186,9 +191,11 @@ chromium_browsers = [
     (u'chrome canary', u'{LOCALAPPDATA}\\Google\\Chrome SxS\\User Data'),
     (u'chromium', u'{LOCALAPPDATA}\\Chromium\\User Data'),
     (u'coccoc', u'{LOCALAPPDATA}\\CocCoc\\Browser\\User Data'),
-    (u'comodo dragon', u'{LOCALAPPDATA}\\Comodo\\Dragon\\User Data'),  # Comodo IceDragon is Firefox-based
+    # Comodo IceDragon is Firefox-based
+    (u'comodo dragon', u'{LOCALAPPDATA}\\Comodo\\Dragon\\User Data'),
     (u'elements browser', u'{LOCALAPPDATA}\\Elements Browser\\User Data'),
-    (u'epic privacy browser', u'{LOCALAPPDATA}\\Epic Privacy Browser\\User Data'),
+    (u'epic privacy browser',
+     u'{LOCALAPPDATA}\\Epic Privacy Browser\\User Data'),
     (u'google chrome', u'{LOCALAPPDATA}\\Google\\Chrome\\User Data'),
     (u'kometa', u'{LOCALAPPDATA}\\Kometa\\User Data'),
     (u'opera', u'{APPDATA}\\Opera Software\\Opera Stable'),
@@ -202,4 +209,5 @@ chromium_browsers = [
     (u'UCBrowser', u'{LOCALAPPDATA}\\UCBrowser\\User Data')
 ]
 
-chromium_browsers = [ChromiumBased(browser_name=name, paths=paths) for name, paths in chromium_browsers]
+chromium_browsers = [ChromiumBased(
+    browser_name=name, paths=paths) for name, paths in chromium_browsers]

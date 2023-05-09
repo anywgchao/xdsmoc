@@ -1,0 +1,81 @@
+[
+    {
+        "User": "SYSTEM"
+    },
+    {
+        "Passwords": [
+            [
+                {
+                    "Category": "Thunderbird"
+                },
+                [
+                    {
+                        "Password": "JUNxssdd3123",
+                        "Smtp": "pop3.junxinan.cn",
+                        "Type": "mailbox",
+                        "Username": "wangguanchao@junxinan.cn"
+                    },
+                    {
+                        "Password": "JUNxsdfs123",
+                        "Smtp": "smtp.junxinan.cn",
+                        "Type": "smtp",
+                        "Username": "wangguanchao@junxinan.cn"
+                    },
+                    {
+                        "Password": "7chEsdsdds,wm",
+                        "Smtp": "imap.sina.com",
+                        "Type": "imap",
+                        "Username": "anywgchao"
+                    },
+                    {
+                        "Password": "7chEDsdsdsa,wm",
+                        "Smtp": "smtp.sina.com",
+                        "Type": "smtp",
+                        "Username": "anywgchao"
+                    }
+                ]
+            ],
+            [
+                {
+                    "Category": "Outlook"
+                },
+                [
+                    {
+                        "Email": "707824316@qq.com",
+                        "Name": "QQ",
+                        "Password": "ypiezusdsddssbfdd",
+                        "Port": "993",
+                        "SMTP_Port": "587",
+                        "SMTP_Server": "smtp.qq.com",
+                        "Server": "imap.qq.com",
+                        "Type": "IMAP",
+                        "User": "707824316"
+                    },
+                    {
+                        "Email": "wangguanchao@junxinan.cn",
+                        "Name": "163",
+                        "Password": "JUNsdsds3123",
+                        "Port": "",
+                        "SMTP_Port": "587",
+                        "SMTP_Server": "smtp.junxinan.cn",
+                        "Server": "pop3.junxinan.cn",
+                        "Type": "P0P3",
+                        "User": "wangguanchao@junxinan.cn"
+                    },
+                    {
+                        "Email": "anywgchao@sina.com",
+                        "Name": "gcc",
+                        "Password": "7chEDsdsdsa,wm",
+                        "Port": "993",
+                        "SMTP_Port": "587",
+                        "SMTP_Server": "smtp.sina.com",
+                        "Server": "imap.sina.com",
+                        "Type": "IMAP",
+                        "User": "anywgchao"
+                    }
+                ]
+            ]
+        ],
+        "User": "shutup"
+    }
+]

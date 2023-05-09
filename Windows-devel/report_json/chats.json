@@ -1,0 +1,22 @@
+[
+    {
+        "User": "SYSTEM"
+    },
+    {
+        "Passwords": [
+            [
+                {
+                    "Category": "Skype"
+                },
+                [
+                    {
+                        "Hash": "21e6fe41060f6c4413a18542add5ebcc",
+                        "Login": "anywgchao",
+                        "Pattern to bruteforce using md5": "anywgchao\\nskyper\\n<password>" //这个不解析
+                    }
+                ]
+            ]
+        ],
+        "User": "shutup"
+    }
+]

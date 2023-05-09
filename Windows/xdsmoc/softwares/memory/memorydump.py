@@ -7,12 +7,12 @@ It has been tested on both windows 10 and ubuntu 16.04
 The regex have been taken from the mimikittenz https://github.com/putterpanda/mimikittenz
 """
 
-from .keethief import KeeThief
-from xdsmoc.config.module_info import ModuleInfo
 from xdsmoc.config.constant import constant
-from xdsmoc.config.winstructure import get_full_path_from_pid
 from xdsmoc.config.lib.memorpy import *
+from xdsmoc.config.module_info import ModuleInfo
+from xdsmoc.config.winstructure import get_full_path_from_pid
 
+from .keethief import KeeThief
 
 # Memorpy has been removed because it takes to much time to execute - could return one day
 
@@ -58,7 +58,8 @@ from xdsmoc.config.lib.memorpy import *
 # 	("Cpanel","user=(?P<Login>.{1,50})&pass=(?P<Password>.{1,50})"),
 # ]
 
-browser_list = ["iexplore.exe", "firefox.exe", "chrome.exe", "opera.exe", "MicrosoftEdge.exe", "microsoftedgecp.exe"]
+browser_list = ["iexplore.exe", "firefox.exe", "chrome.exe",
+                "opera.exe", "MicrosoftEdge.exe", "microsoftedgecp.exe"]
 keepass_process = 'keepass.exe'
 
 
@@ -105,7 +106,7 @@ class MemoryDump(ModuleInfo):
                 if k.run(full_exe_path=full_exe_path):
                     for keepass in constant.keepass:
                         data = keepass.get('KcpPassword', None)
-                        if data: 
+                        if data:
                             pwd_found.append({
                                 'Category': 'KeePass',
                                 'KeyType': data['KeyType'],

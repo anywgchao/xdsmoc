@@ -1,13 +1,19 @@
+'''
+@Author: Daboluo
+@Date: 2019-11-19 16:44:43
+@LastEditTime: 2020-06-10 14:58:29
+@LastEditors: Do not edit
+'''
 # -*- coding: utf-8 -*-
-try: 
+try:
     import _winreg as winreg
 except ImportError:
     import winreg
 
-from xdsmoc.config.module_info import ModuleInfo
-from xdsmoc.config.winstructure import OpenKey, HKEY_LOCAL_MACHINE
 from xdsmoc.config.constant import constant
+from xdsmoc.config.module_info import ModuleInfo
 from xdsmoc.config.users import get_username_winapi
+from xdsmoc.config.winstructure import HKEY_LOCAL_MACHINE, OpenKey
 
 
 class WindowsPassword(ModuleInfo):
@@ -21,7 +27,8 @@ class WindowsPassword(ModuleInfo):
         If a domain controller is set we are in an active directory.
         """
         try:
-            key = OpenKey(HKEY_LOCAL_MACHINE, r'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\')
+            key = OpenKey(
+                HKEY_LOCAL_MACHINE, r'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\')
             val, _ = winreg.QueryValueEx(key, 'DCName')
             winreg.CloseKey(key)
             return val
@@ -71,7 +78,7 @@ class WindowsPassword(ModuleInfo):
                     if h:
                         pwd_found.append({
                             'Dpapi_hash_{context}'.format(context=context): constant.user_dpapi.get_dpapi_hash(
-                                                                                                    context=context)
+                                context=context)
                         })
 
         return pwd_found

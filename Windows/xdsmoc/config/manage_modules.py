@@ -1,74 +1,68 @@
 # -*- coding: utf-8 -*-
 
-# Browsers
+# browser
 from xdsmoc.softwares.browsers.chromium_based import chromium_browsers
 from xdsmoc.softwares.browsers.ie import IE
 from xdsmoc.softwares.browsers.mozilla import firefox_browsers
 from xdsmoc.softwares.browsers.ucbrowser import UCBrowser
-
-# Chats
+# chats
 from xdsmoc.softwares.chats.pidgin import Pidgin
 from xdsmoc.softwares.chats.psi import PSI
 from xdsmoc.softwares.chats.skype import Skype
-
-
-# Databases
+# database
 from xdsmoc.softwares.databases.dbvis import Dbvisualizer
 from xdsmoc.softwares.databases.postgresql import PostgreSQL
 from xdsmoc.softwares.databases.robomongo import Robomongo
 from xdsmoc.softwares.databases.sqldeveloper import SQLDeveloper
 from xdsmoc.softwares.databases.squirrel import Squirrel
-# Games
+# games
 from xdsmoc.softwares.games.galconfusion import GalconFusion
 from xdsmoc.softwares.games.kalypsomedia import KalypsoMedia
 from xdsmoc.softwares.games.roguestale import RoguesTale
 from xdsmoc.softwares.games.turba import Turba
-# Git
+# Git/Svn
 from xdsmoc.softwares.git.gitforwindows import GitForWindows
-# Mails
+# email
 from xdsmoc.softwares.mails.outlook import Outlook
 from xdsmoc.softwares.mails.thunderbird import Thunderbird
-# Maven
 from xdsmoc.softwares.maven.mavenrepositories import MavenRepositories
-# Memory
+# mem
 from xdsmoc.softwares.memory.keepass import Keepass
 from xdsmoc.softwares.memory.memorydump import MemoryDump
-# Multimedia
+# media tools
 from xdsmoc.softwares.multimedia.eyecon import EyeCON
-# Php
+# devel
 from xdsmoc.softwares.php.composer import Composer
-# Svn
 from xdsmoc.softwares.svn.tortoise import Tortoise
-# Sysadmin
-from xdsmoc.softwares.sysadmin.apachedirectorystudio import ApacheDirectoryStudio
+# system other tools
+from xdsmoc.softwares.sysadmin.apachedirectorystudio import \
+    ApacheDirectoryStudio
 from xdsmoc.softwares.sysadmin.coreftp import CoreFTP
 from xdsmoc.softwares.sysadmin.cyberduck import Cyberduck
 from xdsmoc.softwares.sysadmin.filezilla import Filezilla
 from xdsmoc.softwares.sysadmin.filezillaserver import FilezillaServer
 from xdsmoc.softwares.sysadmin.ftpnavigator import FtpNavigator
-from xdsmoc.softwares.sysadmin.opensshforwindows import OpenSSHForWindows
-from xdsmoc.softwares.sysadmin.openvpn import OpenVPN
+from xdsmoc.softwares.sysadmin.iisapppool import IISAppPool
 from xdsmoc.softwares.sysadmin.iiscentralcertp import IISCentralCertP
 from xdsmoc.softwares.sysadmin.keepassconfig import KeePassConfig
-from xdsmoc.softwares.sysadmin.iisapppool import IISAppPool
+from xdsmoc.softwares.sysadmin.opensshforwindows import OpenSSHForWindows
+from xdsmoc.softwares.sysadmin.openvpn import OpenVPN
 from xdsmoc.softwares.sysadmin.puttycm import Puttycm
 from xdsmoc.softwares.sysadmin.rdpmanager import RDPManager
 from xdsmoc.softwares.sysadmin.unattended import Unattended
 from xdsmoc.softwares.sysadmin.vnc import Vnc
 from xdsmoc.softwares.sysadmin.winscp import WinSCP
 from xdsmoc.softwares.sysadmin.wsl import Wsl
-
-# Wifi
+# WIFI password
 from xdsmoc.softwares.wifi.wifi import Wifi
-
-# Windows
+# system password
 from xdsmoc.softwares.windows.autologon import Autologon
 from xdsmoc.softwares.windows.cachedump import Cachedump
-from xdsmoc.softwares.windows.credman import Credman
 from xdsmoc.softwares.windows.credfiles import CredFiles
+from xdsmoc.softwares.windows.credman import Credman
 from xdsmoc.softwares.windows.hashdump import Hashdump
-from xdsmoc.softwares.windows.ppypykatz import Pypykatz
 from xdsmoc.softwares.windows.lsa_secrets import LSASecrets
+from xdsmoc.softwares.windows.ppypykatz import Pypykatz
 from xdsmoc.softwares.windows.vault import Vault
 from xdsmoc.softwares.windows.vaultfiles import VaultFiles
 from xdsmoc.softwares.windows.windows import WindowsPassword

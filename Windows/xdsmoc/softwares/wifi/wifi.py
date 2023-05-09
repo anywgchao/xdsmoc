@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import re
 import os
+import re
 import sys
 import traceback
 from datetime import datetime
+from subprocess import PIPE, Popen
 from xml.etree.cElementTree import ElementTree
-from subprocess import Popen, PIPE
 
 from xdsmoc.config.constant import constant
 from xdsmoc.config.module_info import ModuleInfo
+from xdsmoc.config.winstructure import python_version
 
 
 class Wifi(ModuleInfo):
@@ -22,14 +23,21 @@ class Wifi(ModuleInfo):
         if constant.system_dpapi and constant.system_dpapi.unlocked:
             decrypted_blob = constant.system_dpapi.decrypt_wifi_blob(key)
             if decrypted_blob:
-                return decrypted_blob.decode(sys.getfilesystemencoding())
+                try:
+                    return decrypted_blob.decode(sys.getfilesystemencoding())
+                except UnicodeDecodeError:
+                    return str(decrypted_blob)
 
     def decrypt_using_netsh(self, ssid):
         """
         Does not need admin priv but would work only with english and french systems
         """
+        if python_version == 2:
+            name = 'содержимое ключа'
+        else:
+            name = 'содержимое ключа'.encode('utf-8')
         language_keys = [
-            'key content', 'contenu de la cl', 'содержимое ключа'
+            b'key content', b'contenu de la cl', name
         ]
         self.debug(u'Trying using netsh method')
         process = Popen(['netsh.exe', 'wlan', 'show', 'profile', '{SSID}'.format(SSID=ssid), 'key=clear'],
@@ -37,9 +45,9 @@ class Wifi(ModuleInfo):
                         stdout=PIPE,
                         stderr=PIPE)
         stdout, stderr = process.communicate()
-        for st in stdout.decode().split('\n'):
+        for st in stdout.split(b'\n'):
             if any(i in st.lower() for i in language_keys):
-                password = st.split(':')[1].strip()
+                password = st.split(b':')[1].strip()
                 return password
 
     def run(self):
@@ -64,7 +72,8 @@ class Wifi(ModuleInfo):
                                 root = tree.getroot()
                                 xmlns = root.tag.split("}")[0] + '}'
 
-                                values['Last_Modified'] = datetime.fromtimestamp(os.path.getmtime(f)).strftime('%Y-%m-%d %H:%M:%S')
+                                values['Last_Modified'] = datetime.fromtimestamp(
+                                    os.path.getmtime(f)).strftime('%Y-%m-%d %H:%M:%S')
                                 for elem in tree.iter():
                                     if elem.tag.endswith('SSID'):
                                         for w in elem:
@@ -80,13 +89,17 @@ class Wifi(ModuleInfo):
                                     if elem.tag.endswith('keyMaterial'):
                                         key = elem.text
                                         try:
-                                            password = self.decrypt_using_lsa_secret(key=key)
+                                            password = self.decrypt_using_lsa_secret(
+                                                key=key)
                                             if not password:
-                                                password = self.decrypt_using_netsh(ssid=values['SSID'])
+                                                password = self.decrypt_using_netsh(
+                                                    ssid=values['SSID'])
 
                                             if password:
-                                                re_pattern = re.compile(u'[\u0000]', re.UNICODE)
-                                                password = re_pattern.sub(u'', password)
+                                                re_pattern = re.compile(
+                                                    u'[\u0000]', re.UNICODE)
+                                                password = re_pattern.sub(
+                                                    u'', password)
                                                 values['Password'] = password
                                             else:
                                                 values['INFO'] = '[!] Password not found.'

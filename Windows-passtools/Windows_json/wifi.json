@@ -1,0 +1,153 @@
+[
+    {
+        "User": "SYSTEM"
+    },
+    {
+        "Passwords": [
+            [
+                {
+                    "Category": "Wifi"
+                },
+                [
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-28 14:40:46",
+                        "Password": "123324aa",
+                        "Protected": "true",
+                        "SSID": "AndroidAP44"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-09-09 14:29:19",
+                        "Password": "yP*qUuSxhSUWlfiMlRuciy!Sf3Olbm4n3900q!x@EWHYVeSb*KY+BKD0j9FvNYE",
+                        "Protected": "true",
+                        "SSID": "SHUTUP-PC-76360"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-07-26 17:53:56",
+                        "Password": "lixu2zhuyue",
+                        "Protected": "true",
+                        "SSID": "Lzy"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-05-29 10:52:33",
+                        "Password": "2015@ctsi.com.cn",
+                        "Protected": "true",
+                        "SSID": "CTSI-WLAN"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-12 14:33:45",
+                        "Password": "Bestpay11888",
+                        "Protected": "true",
+                        "SSID": "BestPay"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-06-27 14:11:41",
+                        "Password": "123324aa",
+                        "Protected": "true",
+                        "SSID": "AndroidAP"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-09-08 17:52:50",
+                        "Password": "2015_anjiao_SEC",
+                        "Protected": "true",
+                        "SSID": "fosdb_wf"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-09-09 13:04:21",
+                        "Password": "yP*qUuSxhSUWlfiMlRuciy!Sf3Olbm4n3900q!x@EWHYVeSb*KY+BKD0j9FvNYE",
+                        "Protected": "true",
+                        "SSID": "SHUTUP-PC-76360"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-31 18:02:55",
+                        "Password": "yP*qUuSxhSUWlfiMlRuciy!Sf3Olbm4n3900q!x@EWHYVeSb*KY+BKD0j9FvNYE",
+                        "Protected": "true",
+                        "SSID": "SHUTUP-PC-76360"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-07-15 09:52:54",
+                        "Password": "abcd1234",
+                        "Protected": "true",
+                        "SSID": "wifi0000"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-27 13:58:21",
+                        "Password": "Password01!",
+                        "Protected": "true",
+                        "SSID": "binqsoft-wifi"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-12 13:53:34",
+                        "Password": "Guest123",
+                        "Protected": "true",
+                        "SSID": "Guest"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-06-12 22:34:39",
+                        "Password": "PassWord123324",
+                        "Protected": "true",
+                        "SSID": "caicai"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-23 15:55:35",
+                        "Password": "123324aa",
+                        "Protected": "true",
+                        "SSID": "CaiCai_2.4G"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-09-08 18:02:13",
+                        "Password": "2015_anjiao_SEC",
+                        "Protected": "true",
+                        "SSID": "fosdb_wf_guest"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-28 11:10:46",
+                        "Password": "4008121121",
+                        "Protected": "true",
+                        "SSID": "HUAZHU_Hanting"
+                    },
+                    {
+                        "Authentication": "WPA2PSK",
+                        "Encryption": "AES",
+                        "Last_Modified": "2015-08-05 21:59:45",
+                        "Password": "zparkidc123",
+                        "Protected": "true",
+                        "SSID": "zpark"
+                    }
+                ]
+            ]
+        ],
+        "User": "shutup"
+    }
+]

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Code based from these two awesome projects: 
+Code based from these two awesome projects:
 - DPAPICK : https://bitbucket.org/jmichel/dpapick
 - DPAPILAB : https://github.com/dfirfpi/dpapilab
 """
@@ -12,6 +12,8 @@ import hashlib
 import os
 import struct
 from collections import defaultdict
+
+from xdsmoc.config.constant import constant
 
 from . import crypto
 from .credhist import CredHistFile
@@ -102,7 +104,8 @@ class CredHist(DataStruct):
 
     def parse(self, data):
         self.version = data.eat("L")
-        self.guid = "%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % data.eat("L2H8B")
+        self.guid = b"%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % data.eat(
+            "L2H8B")
 
 
 class DomainKey(DataStruct):
@@ -127,7 +130,7 @@ class DomainKey(DataStruct):
         self.secretLen = data.eat("L")
         self.accesscheckLen = data.eat("L")
         # data.eat("16s")
-        self.guidKey = "%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % data.eat(
+        self.guidKey = b"%0x-%0x-%0x-%0x%0x-%0x%0x%0x%0x%0x%0x" % data.eat(
             "L2H8B")
         self.encryptedSecret = data.eat("%us" % self.secretLen)
         self.accessCheck = data.eat("%us" % self.accesscheckLen)
@@ -153,7 +156,7 @@ class MasterKeyFile(DataStruct):
     def parse(self, data):
         self.version = data.eat("L")
         data.eat("2L")
-        self.guid = data.eat("72s").decode("UTF-16LE").encode("utf-8")
+        self.guid = data.eat("72s").replace(b"\x00", b"")
         data.eat("2L")
         self.policy = data.eat("L")
         self.masterkeyLen = data.eat("Q")
@@ -313,11 +316,11 @@ class MasterKeyPool(object):
 
                 GUID = struct.unpack("<LHH", GUID1)
                 GUID2 = struct.unpack(">HLH", GUID2)
-                self.preferred_guid = "%s-%s-%s-%s-%s%s" % (
+                self.preferred_guid = b"%s-%s-%s-%s-%s%s" % (
                     format(GUID[0], '08x'), format(GUID[1], '04x'), format(
                         GUID[2], '04x'), format(GUID2[0], '04x'),
                     format(GUID2[1], '08x'), format(GUID2[2], '04x'))
-                return self.preferred_guid
+                return self.preferred_guid.encode()
 
         return False
 
@@ -357,6 +360,13 @@ class MasterKeyPool(object):
         This function tries to decrypt every masterkey contained in the pool that has not been successfully decrypted yet with the given password and SID.
         Should be called as a generator (ex: for r in try_credential(sid, password))
         """
+        # Check into cache to gain time (avoid checking twice the same thing)
+        if constant.dpapi_cache.get(sid):
+            if constant.dpapi_cache[sid]['password'] == password:
+                if constant.dpapi_cache[sid]['decrypted']:
+                    return True, ''
+                else:
+                    return False, ''
 
         # All master key files have not been already decrypted
         if self.nb_mkf_decrypted != self.nb_mkf:
@@ -381,6 +391,11 @@ class MasterKeyPool(object):
                                         yield u'masterkey {masterkey} decrypted using credhists key'.format(
                                             masterkey=mk.guid.decode())
                                         self.credhists[sid].valid = True
+
+                            constant.dpapi_cache[sid] = {
+                                'password': password,
+                                'decrypted': mk.decrypted
+                            }
 
                             if mk.decrypted:
                                 # Save the password found
